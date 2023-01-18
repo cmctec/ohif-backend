@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model appointment {
+  id               String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  patient_iin      String?    @db.VarChar(200)
+  patient_fio      String?    @db.VarChar(200)
+  appointment_date DateTime?  @db.Date
+  referrer         String?    @db.VarChar(200)
+  status           String?    @db.VarChar(200)
+  link_conclusion  String?    @db.VarChar(500)
+  mis_id           String?    @db.VarChar(200)
+  service_name     String?    @db.VarChar(200)
+  service_code     String?    @db.VarChar(200)
+  conclusion_id    String     @db.Uuid
+  conclusion       conclusion @relation(fields: [conclusion_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model conclusion {
+  id               String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  conclusion_text  String?       @db.VarChar(200)
+  conclusion_image String?       @db.VarChar(200)
+  ohif_id          String?       @db.VarChar(200)
+  doctor_iin       String?       @db.VarChar(200)
+  doctor_fullname  String?       @db.VarChar(200)
+  conclusion_url   String?       @db.VarChar(200)
+  study_id         String        @db.Uuid
+  appointment      appointment[]
+  studies          studies       @relation(fields: [study_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model modalities {
+  id             String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name           String?          @db.VarChar(200)
+  modality_study modality_study[]
+}
+
+model modality_study {
+  id          String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  study_id    String     @db.Uuid
+  modality_id String     @db.Uuid
+  modalities  modalities @relation(fields: [modality_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  studies     studies    @relation(fields: [study_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model patients {
+  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  iin       String?   @db.VarChar(200)
+  firstname String?   @db.VarChar(200)
+  lastname  String?   @db.VarChar(200)
+  surname   String?   @db.VarChar(200)
+  bdate     DateTime? @db.Date
+  region    String?   @db.VarChar(200)
+  gernder   String?   @db.VarChar(200)
+  phone     String?   @db.VarChar(200)
+  fullname  String?   @db.VarChar(200)
+  email     String?   @db.VarChar(200)
+  studies   studies[]
+}
+
+model schemaversion {
+  version BigInt    @id
+  name    String?
+  md5     String?
+  run_at  DateTime? @db.Timestamptz(6)
+}
+
+model share_dicom_archive {
+  id                 String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  study_id           String   @db.Uuid
+  token              String?  @db.VarChar(200)
+  otp_code           String?  @db.VarChar(200)
+  doctor_iin         String?  @db.VarChar(200)
+  status             String?  @db.VarChar(200)
+  verify_status      Boolean?
+  number_of_attempts Int?     @db.SmallInt
+  studies            studies  @relation(fields: [study_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model studies {
+  id                  String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  ohif_id             String?               @db.VarChar(200)
+  patient_id          String?               @db.Uuid
+  description         String?               @db.VarChar(200)
+  date                DateTime?             @db.Date
+  access_number       String?               @db.VarChar(200)
+  status              String?               @db.VarChar(200)
+  sms_status          String?               @db.VarChar(200)
+  incorrectiin        Boolean?
+  uuid_whatsapp       String?               @db.VarChar(200)
+  anonymized_ohif_id  String?               @db.VarChar(200)
+  archive_url         String?               @db.VarChar(500)
+  conclusion          conclusion[]
+  modality_study      modality_study[]
+  share_dicom_archive share_dicom_archive[]
+  patients            patients?             @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
