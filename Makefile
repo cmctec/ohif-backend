@@ -12,8 +12,8 @@ dev:
 	yarn start start:dev
 # для миграций, js file отправить все sql file виде  DDL запроса
 sm:
-	yarn start migrate
-	yarn start start:dev
+	yarn migrate
+	yarn start:dev
 # фиксит esLint
 fixlint:
 	yarn lint -- --fix
@@ -24,3 +24,8 @@ gmod:
 	nest g service patients
 i:
 	yarn install
+two: 
+	npx prisma db pull --schema src/prisma/schema.prisma
+	npx prisma db pull --schema src/supabase/schema.prisma
+	npx prisma generate --schema src/prisma/schema.prisma
+	npx prisma generate --schema src/supabase/schema.prisma
