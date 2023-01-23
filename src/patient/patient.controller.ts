@@ -18,7 +18,6 @@ export class PatientsController {
   // https://stackoverflow.com/questions/65687512/nestjs-and-google-recaptcha
   // https://www.google.com/recaptcha/about/
   async savePatient(@Body() data: SavePatientDto) {
-    console.log(data);
     return await this.patientService.savePatientSupabase(data);
   }
   @Put('/send/otp')
@@ -29,7 +28,6 @@ export class PatientsController {
 
   @Get()
   async getAllUserData() {
-    console.log('asdasdasd');
     const data = await this.patientService.getAllPatientSupabase();
     return data;
   }
@@ -40,7 +38,6 @@ export class PatientsController {
 
   @Post()
   async createUserData(@Body() register: VerifyDto) {
-    console.log(register);
     return await this.patientService.getAllUserData();
   }
 }

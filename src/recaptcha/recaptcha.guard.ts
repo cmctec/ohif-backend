@@ -15,13 +15,11 @@ export class RecaptchaGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const { body } = context.switchToHttp().getRequest();
-    console.log({ body });
     const { data }: any = await this.httpService
       .post(
         `https://www.google.com/recaptcha/api/siteverify?response=${body.recaptchaValue}&secret=${process.env.RECAPTCHA_SECRET}`,
       )
       .toPromise();
-    console.log(data);
     if (!data.success) {
       throw new ForbiddenException({
         errorId: HttpStatus.FORBIDDEN,
@@ -32,3 +30,5 @@ export class RecaptchaGuard implements CanActivate {
     return true;
   }
 }
+// 6LdGQxwkAAAAAMdfaPhemcdjuC-lBeBvhrKHiW3C  HTML siteSecretKey
+// 6LdGQxwkAAAAAI2Qku1qjb-AkjwYn_Pgcp_7PpuR secretKey

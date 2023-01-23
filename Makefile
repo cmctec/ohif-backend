@@ -4,7 +4,6 @@
 # recommended after migration "make sm"
 prisma: 
 	npx prisma db pull
-	npx prisma generate
 # this code generated prisma types
 prismag: 
 	npx prisma generate
@@ -29,3 +28,7 @@ two:
 	npx prisma db pull --schema src/supabase/schema.prisma
 	npx prisma generate --schema src/prisma/schema.prisma
 	npx prisma generate --schema src/supabase/schema.prisma
+prod:
+	yarn migrate
+	yarn build
+	yarn start:prod
