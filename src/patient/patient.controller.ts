@@ -18,9 +18,16 @@ export class PatientsController {
   }
 
   @Public()
-  @Post('/send/otp')
+  @Post('/otp/send')
   @UseGuards(RecaptchaGuard)
-  async sendOptCode(@Body() data: SendOptCodeDto) {
+  async optCodeSend(@Body() data: SendOptCodeDto) {
+    return await this.patientService.patientSendOptCode(data);
+  }
+
+  @Public()
+  @Post('/otp/verify')
+  @UseGuards(RecaptchaGuard)
+  async optCodeVerify(@Body() data: SendOptCodeDto) {
     return await this.patientService.patientSendOptCode(data);
   }
 }

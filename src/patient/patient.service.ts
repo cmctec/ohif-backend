@@ -11,6 +11,7 @@ import { RpnService } from '../utilModules/rpn/rpn.service';
 import { SupabaseService } from '../utilModules/supabase/supabase.service';
 import { SendOptCodeDto } from './dto/SendOptCodeDto';
 import { MessengerApiService } from '../utilModules/messengerApi/messengerApi.service';
+import { OptCodeVerifyDto } from './dto/OptCodeVerifyDto';
 
 @Injectable()
 export class PatientService {
@@ -128,6 +129,54 @@ export class PatientService {
       },
     });
     return;
+  }
+  async optCodeVerify(data: OptCodeVerifyDto) {
+    const share_dicom_archive =
+      await this.supabaseService.share_dicom_archive.findFirst({
+        where: { token: data.token, doctor_iin: data.doctor_iin },
+      });
+
+    if (!share_dicom_archive.token) {
+      throw new HttpException(
+        'doctor_iin or token not exist',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (data.otp_code !== share_dicom_archive.otp_code) {
+      await this.supabaseService.share_dicom_archive.update({
+        where: { id: share_dicom_archive.id },
+        data: {
+          verify_status: false,
+          status: 'code_not_confirmed',
+        },
+      });
+      throw new HttpException(
+        {
+          message: 'Verification code is incorrect',
+          verify_status: false,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.supabaseService.share_dicom_archive.update({
+      where: { id: share_dicom_archive.id },
+      data: {
+        verify_status: true,
+        status: 'access_granted',
+      },
+    });
+
+    const studies = await this.supabaseService.studies.findFirst({
+      where: { id: share_dicom_archive.study_id },
+    });
+
+    return {
+      message: 'Verification passed successfully',
+      verify_status: true,
+      archive_url: studies.archive_url,
+    };
   }
   async patientData(id: string) {
     return await this.prismaService.patients.findUnique({ where: { id } });
