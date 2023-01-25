@@ -4,6 +4,7 @@ import { PatientService } from './patient.service';
 import { SavePatientDto } from './dto/savePatient.dto';
 import { RecaptchaGuard } from '../utilModules/recaptcha/recaptcha.guard';
 import { SendOptCodeDto } from './dto/SendOptCodeDto';
+import { OptCodeVerifyDto } from './dto/OptCodeVerifyDto';
 
 @Controller('v1/patient')
 export class PatientsController {
@@ -27,7 +28,7 @@ export class PatientsController {
   @Public()
   @Post('/otp/verify')
   @UseGuards(RecaptchaGuard)
-  async optCodeVerify(@Body() data: SendOptCodeDto) {
-    return await this.patientService.patientSendOptCode(data);
+  async optCodeVerify(@Body() data: OptCodeVerifyDto) {
+    return await this.patientService.optCodeVerify(data);
   }
 }
