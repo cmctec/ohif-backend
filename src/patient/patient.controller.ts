@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
-import { ApiBody } from '@nestjs/swagger';
-import { AuthenticatedUser, Public } from 'nest-keycloak-connect';
-import { VerifyDto } from './dto/verify.dto';
+import {
+  Body,
+  Controller,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
+import { Public } from 'nest-keycloak-connect';
 import { PatientService } from './patient.service';
-import { ParamsIsUUID } from '../config/dto/ParamUuidd';
 import { SavePatientDto } from './dto/savePatient.dto';
 import { RecaptchaGuard } from '../recaptcha/recaptcha.guard';
 // @AuthenticatedUser() user
@@ -24,21 +26,6 @@ export class PatientsController {
   async sendOptCode() {
     return '';
     // return await this.patientService.savePatientSupabase();
-  }
-
-  @Get()
-  async getAllUserData() {
-    const data = await this.patientService.getAllPatientSupabase();
-    return data;
-  }
-  @Get(':id')
-  async getUserData(@Param() { id }: ParamsIsUUID) {
-    return await this.patientService.patientData(id);
-  }
-
-  @Post()
-  async createUserData(@Body() register: VerifyDto) {
-    return await this.patientService.getAllUserData();
   }
 }
 // 6LfitRgkAAAAAACVPq9bdv1MIAE3KiJvnFf2FM4s

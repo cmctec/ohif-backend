@@ -73,17 +73,10 @@ export class PatientService {
     this.logger.log('savePatient end');
     return;
   }
-
-  async patientData(id: string) {
+  async patientSendOptCode(id: string) {
     return await this.prismaService.patients.findUnique({ where: { id } });
   }
-
-  async getAllPatientSupabase() {
-    const data = await this.supabaseService.patients.findMany();
-    JSON.stringify(data, (_, v) => (typeof v === 'bigint' ? Number(v) : v));
-  }
-
-  async getAllUserData() {
-    return await this.prismaService.patients.findMany();
+  async patientData(id: string) {
+    return await this.prismaService.patients.findUnique({ where: { id } });
   }
 }
