@@ -9,7 +9,15 @@ services:
       - /data/postgres:/data/postgres
     env_file:
       - .env.prod
-      
+  migrate:
+    container_name: main_migrate
+    build: .
+    restart: on-failure
+    env_file:
+      - .env.prod
+    depends_on:
+      - postgres
+    command: ["yarn", "migrate" ]
   main:
     container_name: main
     restart: always
@@ -18,10 +26,5 @@ services:
       - .env.prod
     ports:
       - 8888:8888
-    command: yarn start:prod
     depends_on:
-      - postgres
-
-# networks:
-#   postgres:
-#     driver: bridge
+      - migrate

@@ -1,24 +1,33 @@
-FROM node:16 as build
+# https://gist.github.com/nzvtrk/cba2970b1df9091b520811e521d9bd44
 
-WORKDIR /app
+FROM node:16 AS build
+WORKDIR /ohif/app/main
 
-COPY package*.json yarn.lock nest-cli.json ./
-COPY yarn.lock nest-cli.json ./
-COPY nest-cli.json ./
-COPY Makefile ./
-COPY tsconfig.build.json ./
-COPY tsconfig.json ./
-COPY ./src ./src
-COPY ./db ./db
+COPY package.json ./
+COPY yarn.lock ./
+
+RUN yarn install --pure-lockfile
+
+COPY . ./
+RUN npx prisma generate --schema src/utilModules/prisma/schema.prisma
+RUN	npx prisma generate --schema src/utilModules/supabase/schema.prisma
+RUN yarn  build
+# RUN ls -a -l
+
+
+FROM node:16
+WORKDIR /ohif/app/main
+
+COPY --from=build /ohif/app/main/package.json /ohif/app/main/package.json
+COPY --from=build /ohif/app/main/node_modules /ohif/app/main/node_modules
+
+COPY --from=build /ohif/app/main/db /ohif/app/main/db
+
+COPY --from=build /ohif/app/main/dist /ohif/app/main/dist
+COPY --from=build /ohif/app/main/generated /ohif/app/main/generated
+
 
 RUN ls -a -l
 
-RUN yarn install --pure-lockfile
-RUN npx prisma generate --schema src/utilModules/prisma/schema.prisma
-RUN	npx prisma generate --schema src/utilModules/supabase/schema.prisma
-
-EXPOSE 8888
-
-RUN yarn  build
-
-CMD ["make", "prod"]
+EXPOSE 3000
+CMD ["yarn", "start:prod" ]
