@@ -5,10 +5,17 @@ import { PatientService } from './patient.service';
 import { RpnModule } from '../utilModules/rpn/rpn.module';
 import { HttpModule } from '@nestjs/axios';
 import { SupabaseModule } from '../utilModules/supabase/supabase.module';
+import { MessengerApiModule } from '../utilModules/messengerApi/messengerApi.module';
 
 @Module({
-  imports: [PrismaModule, SupabaseModule, RpnModule, HttpModule],
-controllers: [PatientsController],
+  imports: [
+    PrismaModule,
+    SupabaseModule,
+    RpnModule,
+    HttpModule,
+    MessengerApiModule,
+  ],
+  controllers: [PatientsController],
   providers: [PatientService],
 })
 export class PatientModule {}

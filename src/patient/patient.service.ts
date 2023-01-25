@@ -1,8 +1,16 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../utilModules/prisma/prisma.service';
 import { SavePatientDto } from './dto/savePatient.dto';
 import { RpnService } from '../utilModules/rpn/rpn.service';
 import { SupabaseService } from '../utilModules/supabase/supabase.service';
+import { SendOptCodeDto } from './dto/SendOptCodeDto';
+import { MessengerApiService } from '../utilModules/messengerApi/messengerApi.service';
 
 @Injectable()
 export class PatientService {
@@ -10,6 +18,7 @@ export class PatientService {
     private readonly prismaService: PrismaService,
     private readonly supabaseService: SupabaseService,
     private readonly rpnService: RpnService,
+    private readonly messengerApiService: MessengerApiService,
   ) {}
   private readonly logger = new Logger();
 
@@ -73,8 +82,52 @@ export class PatientService {
     this.logger.log('savePatient end');
     return;
   }
-  async patientSendOptCode(id: string) {
-    return await this.prismaService.patients.findUnique({ where: { id } });
+  async patientSendOptCode(data: SendOptCodeDto) {
+    const share_dicom_archive =
+      await this.supabaseService.share_dicom_archive.findFirst({
+        where: { token: data.token },
+      });
+
+    if (share_dicom_archive.number_of_attempts <= 3) {
+      throw new HttpException(
+        'Exceeded the number of attempts to request an access code',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (!share_dicom_archive.token) {
+      throw new HttpException('Token not found', HttpStatus.BAD_REQUEST);
+    }
+
+    const studies = await this.supabaseService.studies.findFirst({
+      where: { id: share_dicom_archive.study_id },
+    });
+
+    const patients = await this.supabaseService.patients.findFirst({
+      where: { id: studies.patient_id },
+    });
+
+    if (!patients) {
+      throw new HttpException('phone not found', HttpStatus.BAD_REQUEST);
+    }
+
+    const otpcode = String(Math.floor(100000 + Math.random() * 900000));
+    this.messengerApiService.medreview_otpcode_dicom_archive({
+      phone: patients.phone,
+      template_arguments: { otpcode },
+    });
+
+    this.supabaseService.share_dicom_archive.update({
+      where: { id: share_dicom_archive.id },
+      data: {
+        ...(share_dicom_archive.otp_code
+          ? { otp_code: otpcode }
+          : { status: 're_sent_otpcode' }),
+        doctor_iin: data.doctor_iin,
+        number_of_attempts: share_dicom_archive.number_of_attempts++,
+      },
+    });
+    return;
   }
   async patientData(id: string) {
     return await this.prismaService.patients.findUnique({ where: { id } });

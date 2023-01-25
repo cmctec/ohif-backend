@@ -26,7 +26,7 @@ i:
 two: 
 	npx prisma db pull --schema src/utilModules/prisma/schema.prisma
 	npx prisma db pull --schema src/utilModules/supabase/schema.prisma
-	
+twogen:
 	npx prisma generate --schema src/utilModules/prisma/schema.prisma
 	npx prisma generate --schema src/utilModules/supabase/schema.prisma
 prod:
