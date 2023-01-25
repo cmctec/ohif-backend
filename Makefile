@@ -24,10 +24,11 @@ gmod:
 i:
 	yarn install
 two: 
-	npx prisma db pull --schema src/prisma/schema.prisma
-	npx prisma db pull --schema src/supabase/schema.prisma
-	npx prisma generate --schema src/prisma/schema.prisma
-	npx prisma generate --schema src/supabase/schema.prisma
+	npx prisma db pull --schema src/utilModules/prisma/schema.prisma
+	npx prisma db pull --schema src/utilModules/supabase/schema.prisma
+	
+	npx prisma generate --schema src/utilModules/prisma/schema.prisma
+	npx prisma generate --schema src/utilModules/supabase/schema.prisma
 prod:
 	yarn migrate
 	yarn build

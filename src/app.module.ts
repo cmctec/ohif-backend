@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PatientModule } from './patient/patient.module';
-import { RecaptchaModule } from './recaptcha/recaptcha.module';
-import configuration from './config/env';
-import { KeycloakConfigService } from './keycloak/keycloak-config.service';
-import { AuthenticationModule } from './keycloak/keycloak.module';
+import { RecaptchaModule } from './utilModules/recaptcha/recaptcha.module';
+import configuration from './utilModules/config/configurationENV';
+import { KeycloakConfigService } from './utilModules/keycloak/keycloak-config.service';
+import { AuthenticationModule } from './utilModules/keycloak/keycloak.module';
 import { APP_GUARD } from '@nestjs/core';
 import {
   AuthGuard,
@@ -15,22 +15,20 @@ import {
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      //is true ==> ignore .env file
-      ignoreEnvFile: false,
-      isGlobal: true,
-      load: [configuration],
-    }),
-
+    //env config
+    ConfigModule.forRoot(configuration),
+    //KeycloakConnect config
     KeycloakConnectModule.registerAsync({
       useExisting: KeycloakConfigService,
       imports: [AuthenticationModule],
     }),
+    // more modules
     PatientModule,
     RecaptchaModule,
   ],
   controllers: [],
   providers: [
+    //KeycloakConnect guards
     {
       provide: APP_GUARD,
       useClass: AuthGuard,

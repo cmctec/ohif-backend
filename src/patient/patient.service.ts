@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { SupabaseService } from '../supabase/supabase.service';
+import { PrismaService } from '../utilModules/prisma/prisma.service';
 import { SavePatientDto } from './dto/savePatient.dto';
-import { RpnService } from '../rpn/rpn.service';
+import { RpnService } from '../utilModules/rpn/rpn.service';
+import { SupabaseService } from '../utilModules/supabase/supabase.service';
 
 @Injectable()
 export class PatientService {

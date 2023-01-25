@@ -7,7 +7,7 @@ import {
 import { Public } from 'nest-keycloak-connect';
 import { PatientService } from './patient.service';
 import { SavePatientDto } from './dto/savePatient.dto';
-import { RecaptchaGuard } from '../recaptcha/recaptcha.guard';
+import { RecaptchaGuard } from '../utilModules/recaptcha/recaptcha.guard';
 // @AuthenticatedUser() user
 
 @Controller('v1/patient')

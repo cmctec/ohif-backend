@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import {
   KeycloakConnectOptions,
   KeycloakConnectOptionsFactory,
-  PolicyEnforcementMode,
-  TokenValidation,
+  // PolicyEnforcementMode,
+  // TokenValidation,
 } from 'nest-keycloak-connect';
 import { ConfigService } from '@nestjs/config';
 

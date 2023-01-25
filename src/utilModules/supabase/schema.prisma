@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../../generated/supabase"
+  output   = "../../../generated/supabase"
 }
 
 datasource db {
