@@ -7,17 +7,26 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class RecaptchaGuard implements CanActivate {
   // constructor(private readonly httpService: HttpService) {}
-  constructor(@Inject(HttpService) private httpService: HttpService) {}
+  constructor(
+    @Inject(HttpService)
+    private httpService: HttpService,
+    private configService: ConfigService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    if (this.configService.get<boolean>('RECAPTCHA_DISABLE')) return true;
+
     const { body } = context.switchToHttp().getRequest();
     const { data }: any = await this.httpService
       .post(
-        `https://www.google.com/recaptcha/api/siteverify?response=${body.recaptchaValue}&secret=${process.env.RECAPTCHA_SECRET}`,
+        `https://www.google.com/recaptcha/api/siteverify?response=${
+          body.recaptchaValue
+        }&secret=${this.configService.get<string>('RECAPTCHA_SECRET')}`,
       )
       .toPromise();
     if (!data.success) {
