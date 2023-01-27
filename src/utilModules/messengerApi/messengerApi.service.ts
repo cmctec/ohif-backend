@@ -1,33 +1,42 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger } from '@nestjs/common';
-import { map, timeout, firstValueFrom } from 'rxjs';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { map, timeout, firstValueFrom, catchError } from 'rxjs';
 import { MessengerApiDto } from './dto/messengerApiDto';
 import { ReqMessengerApiDto } from './dto/reqMessengerApiDto';
 import { v4 as uuidv4 } from 'uuid';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MessengerApiService {
-  constructor(private readonly httpService: HttpService) {}
   private readonly logger = new Logger();
+  constructor(
+    private readonly httpService: HttpService,
+    private configService: ConfigService,
+  ) {}
 
   async post(reqData: ReqMessengerApiDto): Promise<MessengerApiDto> {
     try {
       this.logger.log('feth MessengerApi ...');
-      const rpn = await firstValueFrom(
+      return await firstValueFrom(
         this.httpService
-          .post(
+          .put(
             `https://messenger-service.cmctech.pro/message/${uuidv4()}`,
             reqData,
+            {
+              auth: {
+                username: this.configService.get<string>('MESSENGER_USERNAME'),
+                password: this.configService.get<string>('MESSENGER_PASSWORD'),
+              },
+            },
           )
           .pipe(
             timeout(10000),
-            // map((res: { data: string }) =>
-            //   convert.xml2js(res.data, { compact: true }),
-            // ),
+            map((res) => {
+              this.logger.log('feth MessengerApi Success');
+              return res.data;
+            }),
           ),
       );
-      this.logger.log('feth MessengerApi Success');
-      return rpn.data;
     } catch (e) {
       this.logger.error(`feth MessengerApi Error:  ${e}`);
       return undefined;

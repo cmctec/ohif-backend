@@ -108,7 +108,7 @@ export class PatientService {
       where: { id: studies.patient_id },
     });
 
-    if (!patients) {
+    if (!patients.phone) {
       throw new HttpException('phone not found', HttpStatus.BAD_REQUEST);
     }
 
