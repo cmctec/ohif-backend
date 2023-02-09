@@ -11,5 +11,7 @@ CREATE TABLE IF NOT EXISTS studies
  incorrectIIN BOOLEAN,
  UUID_whatsapp varchar(200),
  anonymized_ohif_id varchar(200),
- archive_url varchar(500)
+ archive_url varchar(500),
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now()
 );

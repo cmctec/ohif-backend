@@ -7,5 +7,7 @@ CREATE TABLE IF NOT EXISTS share_dicom_archive
  doctor_iin varchar(200),
  status  varchar(200),
  verify_status BOOLEAN,
- number_of_attempts smallint
+ number_of_attempts smallint,
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now()
 );

@@ -3,6 +3,7 @@
 /dist
 /node_modules
 #prisma types
+/sh
 /generated
 .env
 # Logs

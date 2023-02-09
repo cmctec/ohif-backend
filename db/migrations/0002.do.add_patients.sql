@@ -10,5 +10,7 @@ CREATE TABLE IF NOT EXISTS patients
   gernder varchar(200),
   phone varchar(200),
   fullname varchar(200),
-  email varchar(200)
+  email varchar(200),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );

@@ -7,5 +7,7 @@ CREATE TABLE IF NOT EXISTS conclusion
  doctor_iin varchar(200),
  doctor_fullname varchar(200),
  conclusion_url varchar(200),
- study_id uuid not null references studies(id)
+ study_id uuid not null references studies(id),
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now()
 );
