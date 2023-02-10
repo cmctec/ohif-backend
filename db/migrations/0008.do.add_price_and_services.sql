@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS price
  id uuid primary key DEFAULT uuid_generate_v4(),
  price decimal NOT NULL,
  
- service_id uuid references services(id),
+ service_id uuid not null references services(id),
 
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now()
