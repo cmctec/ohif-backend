@@ -9,31 +9,32 @@ datasource db {
 }
 
 model appointment {
-  id                 String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  patient_iin        String?    @db.VarChar(200)
-  patient_fio        String?    @db.VarChar(200)
-  appointment_date   DateTime?  @db.Date
-  referrer           String?    @db.VarChar(200)
-  status             String?    @db.VarChar(200)
-  link_conclusion    String?    @db.VarChar(500)
-  mis_id             String?    @db.VarChar(200)
-  service_name       String?    @db.VarChar(200)
-  service_code       String?    @db.VarChar(200)
-  conclusion_id      String     @db.Uuid
-  sender_mo_id       String?    @db.VarChar(200)
-  sender_mo_name     String?    @db.VarChar(200)
-  sender_fp_name     String?    @db.VarChar(200)
-  sender_doc_post_id String?    @db.VarChar(200)
-  study_id           Int?
+  id                 String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  patient_iin        String?     @db.VarChar(200)
+  patient_fio        String?     @db.VarChar(200)
+  appointment_date   DateTime?   @db.Date
+  referrer           String?     @db.VarChar(200)
+  status             String?     @db.VarChar(200)
+  link_conclusion    String?     @db.VarChar(500)
+  mis_id             String?     @db.VarChar(200)
+  service_name       String?     @db.VarChar(200)
+  service_code       String?     @db.VarChar(200)
+  conclusion_id      String?     @db.Uuid
+  sender_mo_id       String?     @db.VarChar(200)
+  sender_mo_name     String?     @db.VarChar(200)
+  sender_fp_name     String?     @db.VarChar(200)
+  sender_doc_post_id String?     @db.VarChar(200)
+  study_id           String?     @db.Uuid
   servicecount       Int?
-  created_at         DateTime   @default(now()) @db.Timestamptz(6)
-  updated_at         DateTime   @default(now()) @db.Timestamptz(6)
-  conclusion         conclusion @relation(fields: [conclusion_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  created_at         DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime    @default(now()) @db.Timestamptz(6)
+  conclusion         conclusion? @relation(fields: [conclusion_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  studies            studies?    @relation(fields: [study_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model conclusion {
   id               String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  conclusion_text  String?       @db.VarChar(200)
+  conclusion_text  String?
   conclusion_image String?       @db.VarChar(200)
   ohif_id          String?       @db.VarChar(200)
   doctor_iin       String?       @db.VarChar(200)
@@ -106,7 +107,7 @@ model share_dicom_archive {
 model studies {
   id                  String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   ohif_id             String?               @db.VarChar(200)
-  patient_id          String?               @db.Uuid
+  patient_id          String                @db.Uuid
   description         String?               @db.VarChar(200)
   date                DateTime?             @db.Date
   access_number       String?               @db.VarChar(200)
@@ -118,32 +119,33 @@ model studies {
   archive_url         String?               @db.VarChar(500)
   created_at          DateTime              @default(now()) @db.Timestamptz(6)
   updated_at          DateTime              @default(now()) @db.Timestamptz(6)
+  appointment         appointment[]
   conclusion          conclusion[]
   modality_study      modality_study[]
   share_dicom_archive share_dicom_archive[]
-  patients            patients?             @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  patients            patients              @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model modality_role {
-  id              String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  modality_id     String?        @db.Uuid
-  role_id         String?        @db.Uuid
-  organization_id String?        @db.Uuid
-  created_at      DateTime       @default(now()) @db.Timestamptz(6)
-  updated_at      DateTime       @default(now()) @db.Timestamptz(6)
-  modalities      modalities?    @relation(fields: [modality_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  organizations   organizations? @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  roles           roles?         @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id              String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  modality_id     String        @db.Uuid
+  role_id         String        @db.Uuid
+  organization_id String        @db.Uuid
+  created_at      DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime      @default(now()) @db.Timestamptz(6)
+  modalities      modalities    @relation(fields: [modality_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  organizations   organizations @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  roles           roles         @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model organization_user {
-  id              String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_id         String?        @db.Uuid
-  organization_id String?        @db.Uuid
-  created_at      DateTime       @default(now()) @db.Timestamptz(6)
-  updated_at      DateTime       @default(now()) @db.Timestamptz(6)
-  organizations   organizations? @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users           users?         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id              String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id         String        @db.Uuid
+  organization_id String        @db.Uuid
+  created_at      DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime      @default(now()) @db.Timestamptz(6)
+  organizations   organizations @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users           users         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model organizations {
@@ -161,22 +163,22 @@ model organizations {
 }
 
 model price {
-  id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  price      Decimal   @db.Decimal
-  service_id String?   @db.Uuid
-  created_at DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at DateTime  @default(now()) @db.Timestamptz(6)
-  services   services? @relation(fields: [service_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  price      Decimal  @db.Decimal
+  service_id String   @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+  services   services @relation(fields: [service_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model role_user {
   id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_id    String?  @db.Uuid
-  role_id    String?  @db.Uuid
+  user_id    String   @db.Uuid
+  role_id    String   @db.Uuid
   created_at DateTime @default(now()) @db.Timestamptz(6)
   updated_at DateTime @default(now()) @db.Timestamptz(6)
-  roles      roles?   @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users      users?   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  roles      roles    @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model roles {
