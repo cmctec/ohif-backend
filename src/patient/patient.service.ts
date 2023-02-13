@@ -178,7 +178,4 @@ export class PatientService {
       archive_url: studies.archive_url,
     };
   }
-  async patientData(id: string) {
-    return await this.prismaService.patients.findUnique({ where: { id } });
-  }
 }

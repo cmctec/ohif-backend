@@ -57,13 +57,14 @@ model modalities {
 }
 
 model modality_study {
-  id          String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   study_id    String     @db.Uuid
   modality_id String     @db.Uuid
   created_at  DateTime   @default(now()) @db.Timestamptz(6)
   updated_at  DateTime   @default(now()) @db.Timestamptz(6)
   modalities  modalities @relation(fields: [modality_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   studies     studies    @relation(fields: [study_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([study_id, modality_id])
 }
 
 model patients {
@@ -127,7 +128,6 @@ model studies {
 }
 
 model modality_role {
-  id              String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   modality_id     String        @db.Uuid
   role_id         String        @db.Uuid
   organization_id String        @db.Uuid
@@ -136,16 +136,19 @@ model modality_role {
   modalities      modalities    @relation(fields: [modality_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   organizations   organizations @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   roles           roles         @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([role_id, modality_id, organization_id])
 }
 
 model organization_user {
-  id              String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   user_id         String        @db.Uuid
   organization_id String        @db.Uuid
   created_at      DateTime      @default(now()) @db.Timestamptz(6)
   updated_at      DateTime      @default(now()) @db.Timestamptz(6)
   organizations   organizations @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users           users         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([organization_id, user_id])
 }
 
 model organizations {
@@ -172,13 +175,14 @@ model price {
 }
 
 model role_user {
-  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   user_id    String   @db.Uuid
   role_id    String   @db.Uuid
   created_at DateTime @default(now()) @db.Timestamptz(6)
   updated_at DateTime @default(now()) @db.Timestamptz(6)
   roles      roles    @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_id, role_id])
 }
 
 model roles {

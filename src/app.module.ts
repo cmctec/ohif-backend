@@ -12,6 +12,7 @@ import {
   ResourceGuard,
   RoleGuard,
 } from 'nest-keycloak-connect';
+import { StudiesModule } from './studies/studies.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import {
     // more modules
     PatientModule,
     RecaptchaModule,
+    StudiesModule,
   ],
   controllers: [],
   providers: [

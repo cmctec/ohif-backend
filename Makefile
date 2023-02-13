@@ -18,9 +18,9 @@ fixlint:
 	yarn lint -- --fix
 # DONT Used generated folder "test" with  "module" "controller" "service" 
 gmod:
-	nest g module patients
-	nest g controller patients
-	nest g service patients
+	nest g module studies
+	nest g controller studies
+	nest g service studies
 i:
 	yarn install
 two: 
@@ -33,3 +33,5 @@ prod:
 	yarn migrate
 	yarn build
 	yarn start:prod
+studio: 
+	npx prisma studio --schema src/utilModules/prisma/schema.prisma
