@@ -7,6 +7,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Public } from 'nest-keycloak-connect';
+import ValidationOpt from 'src/utilModules/config/ValidationOpt';
 import { GetAllStudiesDto } from './dto/getAllStudies.dto';
 import { StudiesService } from './studies.service';
 
@@ -19,20 +20,12 @@ export class StudiesController {
   async getStudies(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.studiesService.getStudies(id);
   }
-
   @Public()
   @Get()
   async getAllStudies(
-    @Query(
-      new ValidationPipe({
-        transform: true,
-        transformOptions: { enableImplicitConversion: true },
-        forbidNonWhitelisted: true,
-      }),
-    )
+    @Query(new ValidationPipe(ValidationOpt))
     queryParams: GetAllStudiesDto,
   ) {
-    console.log(queryParams)
-    return 'this.studiesService.getAllStudies();';
+    return this.studiesService.getAllStudies(queryParams);
   }
 }

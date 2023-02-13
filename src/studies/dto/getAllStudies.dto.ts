@@ -1,24 +1,24 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsString, IsOptional, IsInt } from 'class-validator';
+import { IsString, IsOptional, IsInt, IsBoolean } from 'class-validator';
 
 export class GetAllStudiesDto {
   @ApiProperty()
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  public limit?: number;
+  public skip?: number;
 
   @ApiProperty()
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  offset?: number;
+  take?: number;
 
   @ApiProperty()
   @IsOptional()
   @IsString()
-  PatientName?: string;
+  patient_name?: string;
 
   @ApiProperty()
   @IsOptional()
@@ -49,4 +49,9 @@ export class GetAllStudiesDto {
   @IsOptional()
   @IsString()
   status?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  orderBy?: boolean;
 }
