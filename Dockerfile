@@ -6,12 +6,12 @@ WORKDIR /ohif/app/main
 COPY package.json ./
 COPY yarn.lock ./
 
-RUN yarn install --pure-lockfile
+RUN  npm install --legacy-peer-deps
 
 COPY . ./
 RUN npx prisma generate --schema src/utilModules/prisma/schema.prisma
 RUN	npx prisma generate --schema src/utilModules/supabase/schema.prisma
-RUN yarn  build
+RUN npm run build
 # RUN ls -a -l
 
 
@@ -30,4 +30,4 @@ COPY --from=build /ohif/app/main/generated /ohif/app/main/generated
 RUN ls -a -l
 
 EXPOSE 3000
-CMD ["yarn", "start:prod" ]
+CMD ["npm run", "start:prod" ]
