@@ -18,13 +18,13 @@ services:
     depends_on:
       - postgres
     command: ["yarn", "migrate" ]
-  # main:
-  #   container_name: main
-  #   restart: always
-  #   build: .
-  #   env_file:
-  #     - .env.prod
-  #   ports:
-  #     - 8888:8888
-  #   depends_on:
-  #     - migrate
+  main:
+    container_name: main
+    restart: always
+    build: .
+    env_file:
+      - .env.prod
+    ports:
+      - 8888:8888
+    depends_on:
+      - migrate

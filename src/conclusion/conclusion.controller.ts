@@ -1,4 +1,14 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { Public } from 'nest-keycloak-connect';
+import { ConclusionService } from './conclusion.service';
 
-@Controller('conclusion')
-export class ConclusionController {}
+@Controller('v1/conclusion')
+export class ConclusionController {
+  constructor(private readonly conclusionService: ConclusionService) {}
+
+  @Public()
+  @Get()
+  async getAllModalities() {
+    return this.conclusionService.getAllModalities();
+  }
+}
