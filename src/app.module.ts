@@ -14,6 +14,7 @@ import {
 } from 'nest-keycloak-connect';
 import { StudiesModule } from './studies/studies.module';
 import { ModalitiesModule } from './modalities/modalities.module';
+import { ConclusionModule } from './conclusion/conclusion.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ModalitiesModule } from './modalities/modalities.module';
     RecaptchaModule,
     StudiesModule,
     ModalitiesModule,
+    ConclusionModule,
   ],
   controllers: [],
   providers: [

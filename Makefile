@@ -18,9 +18,9 @@ fixlint:
 	yarn lint -- --fix
 # DONT Used generated folder "test" with  "module" "controller" "service" 
 gmod:
-	nest g module modalities
-	nest g controller modalities
-	nest g service modalities
+	nest g module conclusion
+	nest g controller conclusion
+	nest g service conclusion
 i:
 	yarn install
 two: 

@@ -1,6 +1,6 @@
 # https://gist.github.com/nzvtrk/cba2970b1df9091b520811e521d9bd44
 
-FROM node:16 AS build
+FROM node:16.3.0-alpine AS build
 WORKDIR /ohif/app/main
 
 COPY package.json ./
@@ -15,7 +15,7 @@ RUN yarn  build
 # RUN ls -a -l
 
 
-FROM node:16
+FROM node:16.3.0-alpine
 WORKDIR /ohif/app/main
 
 COPY --from=build /ohif/app/main/package.json /ohif/app/main/package.json
