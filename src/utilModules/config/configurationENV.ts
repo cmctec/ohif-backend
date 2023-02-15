@@ -26,6 +26,14 @@ export default {
     AUTH_SERVER_URL: notNullRequiredStr,
 
     MESSENGER_USERNAME: notNullRequiredStr,
-    MESSENGER_PASSWORD: notNullRequiredStr
+    MESSENGER_PASSWORD: notNullRequiredStr,
+
+
+    S3_ACCESS_KEY_ID: notNullRequiredStr,
+    S3_SECRET_ACCESS_KEY: notNullRequiredStr,
+    S3_REGION: notNullRequiredStr,
+    S3_PUBLIC_BUCKET_NAME: notNullRequiredStr,
+    ENDPOINT: notNullRequiredStr,
+
   }),
 };
