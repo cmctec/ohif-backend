@@ -15,13 +15,17 @@ export class S3Service {
     endpoint: this.configService.get('ENDPOINT'),
   });
 
-  async uploadPublicFile(dataBuffer: Buffer, mimetype: string) {
+  async uploadPublicFile(
+    dataBuffer: Buffer,
+    mimetype: string,
+    folder?: string,
+  ) {
     const uploadResult = await this.s3
       .upload({
         Bucket: this.bucketData,
         Body: dataBuffer,
         ContentType: mimetype,
-        Key: `test_folder/${uuid()}`,
+        Key: `${folder || ''}/${uuid()}`,
         ACL: 'public-read',
       })
       .promise();

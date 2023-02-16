@@ -33,18 +33,18 @@ model appointment {
 }
 
 model conclusion {
-  id               String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id               String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   conclusion_text  String?
-  conclusion_image String?       @db.VarChar(200)
-  ohif_id          String?       @db.VarChar(200)
-  doctor_iin       String?       @db.VarChar(200)
-  doctor_fullname  String?       @db.VarChar(200)
-  conclusion_url   String?       @db.VarChar(200)
-  study_id         String        @db.Uuid
-  created_at       DateTime      @default(now()) @db.Timestamptz(6)
-  updated_at       DateTime      @default(now()) @db.Timestamptz(6)
+  ohif_id          String?            @db.VarChar(200)
+  doctor_iin       String?            @db.VarChar(200)
+  doctor_fullname  String?            @db.VarChar(200)
+  conclusion_url   String?            @db.VarChar(200)
+  study_id         String             @db.Uuid
+  created_at       DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime           @default(now()) @db.Timestamptz(6)
   appointment      appointment[]
-  studies          studies       @relation(fields: [study_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  studies          studies            @relation(fields: [study_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  conclusion_image conclusion_image[]
 }
 
 model modalities {
@@ -215,4 +215,13 @@ model users {
   updated_at        DateTime            @default(now()) @db.Timestamptz(6)
   organization_user organization_user[]
   role_user         role_user[]
+}
+
+model conclusion_image {
+  id            String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  image_url     String?    @db.VarChar(2000)
+  conclusion_id String     @db.Uuid
+  created_at    DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime   @default(now()) @db.Timestamptz(6)
+  conclusion    conclusion @relation(fields: [conclusion_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

@@ -1,14 +1,11 @@
 import {
   Body,
   Controller,
-  HttpStatus,
-  ParseFilePipeBuilder,
   Put,
-  UploadedFile,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { Public } from 'nest-keycloak-connect';
 import { ConclusionService } from './conclusion.service';
 import { CreateNewConclusion } from './dto/createNewConclusion.dto';
