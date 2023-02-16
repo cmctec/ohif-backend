@@ -73,9 +73,10 @@ export class ConclusionService {
       conclusion_image: conclusion_image[];
     },
   ) {
-    let PDF: Buffer;
-    if (data.conclusion_image[0].image_url) {
-      PDF = await this.pdfJsReportApiService.mrconclusion({
+    //this вне потока может работать если error сервер падает
+    try {
+      const PDFData = {
+        // TO DO get this Data
         brand_name: 'Green Clinic',
         service_name: 'Компьютерная томография',
         tell2: '874718730000',
@@ -85,18 +86,24 @@ export class ConclusionService {
         patient_fullname: data.studies.patients.fullname,
         patient_iin: data.studies.patients.iin,
         research_date: String(data.created_at),
-        c_image: data.conclusion_image[0].image_url,
+        c_image: data.conclusion_image[0]?.image_url,
+      };
+      let PDF: Buffer = data.conclusion_image[0]?.image_url
+        ? await this.pdfJsReportApiService.mrconclusion(PDFData)
+        : await this.pdfJsReportApiService.mrconclusion_image_null(PDFData);
+
+      const s4DataTest = await this.s3Service.uploadPublicFile(
+        PDF,
+        'application/pdf',
+        'conclusion_pdf',
+      );
+
+      await this.prismaService.conclusion.update({
+        where: { id: data.id },
+        data: { conclusion_url: s4DataTest.Location },
       });
+    } catch (err) {
+      console.error(err);
     }
-    const s4DataTest = await this.s3Service.uploadPublicFile(
-      PDF,
-      'application/pdf',
-      //TO DO Name Floder
-      'test_folder',
-    );
-    await this.prismaService.conclusion.update({
-      where: { id: data.id },
-      data: { conclusion_url: s4DataTest.Location },
-    });
   }
 }
