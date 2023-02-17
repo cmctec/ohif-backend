@@ -88,7 +88,7 @@ export class ConclusionService {
         research_date: String(data.created_at),
         c_image: data.conclusion_image[0]?.image_url,
       };
-      let PDF: Buffer = data.conclusion_image[0]?.image_url
+      const PDF: Buffer = data.conclusion_image[0]?.image_url
         ? await this.pdfJsReportApiService.mrconclusion(PDFData)
         : await this.pdfJsReportApiService.mrconclusion_image_null(PDFData);
 

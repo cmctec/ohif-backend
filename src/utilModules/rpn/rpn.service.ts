@@ -1,8 +1,8 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger, Post } from '@nestjs/common';
-import { AxiosResponse } from 'axios';
-import { pipe, map, timeout, firstValueFrom } from 'rxjs';
+import { Injectable, Logger } from '@nestjs/common';
+import { map, timeout, firstValueFrom } from 'rxjs';
 import { RpnDataDto } from './dto/rpn.dto';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const convert = require('xml-js');
 
 @Injectable()

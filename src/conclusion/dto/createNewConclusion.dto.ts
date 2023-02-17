@@ -1,12 +1,11 @@
-
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsNumber, IsUUID, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsUUID, IsOptional } from 'class-validator';
 
 export class CreateNewConclusion {
   @ApiProperty()
   @IsUUID()
   @IsNotEmpty()
-  study_id:string;
+  study_id: string;
 
   @ApiProperty()
   @IsString()
@@ -23,7 +22,6 @@ export class CreateNewConclusion {
   // conclusion_image?: string;
   // // по идее файл
 
-
   @ApiProperty()
   @IsString()
   @IsOptional()
@@ -33,9 +31,9 @@ export class CreateNewConclusion {
   @IsString()
   @IsOptional()
   doctor_iin?: string;
-  
+
   @ApiProperty()
   @IsString()
   @IsOptional()
-  doctor_fullname?: string
+  doctor_fullname?: string;
 }

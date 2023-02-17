@@ -4,6 +4,5 @@ import { SupabaseService } from './supabase.service';
 @Module({
   providers: [SupabaseService],
   exports: [SupabaseService],
-
 })
 export class SupabaseModule {}

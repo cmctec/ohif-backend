@@ -9,7 +9,7 @@ export class StudiesService {
 
   async getStudies(id: string) {
     this.logger.log('StudiesService studies.findUnique');
-    let data = await this.prismaService.studies.findUnique({
+    const data = await this.prismaService.studies.findUnique({
       where: { id },
       include: {
         patients: true,

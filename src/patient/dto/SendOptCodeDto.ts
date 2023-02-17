@@ -6,7 +6,7 @@ export class SendOptCodeDto {
   @IsString()
   @IsNotEmpty()
   token: string;
-  
+
   @ApiProperty()
   @IsString()
   doctor_iin: string;

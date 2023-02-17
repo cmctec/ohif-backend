@@ -6,7 +6,7 @@ export class OptCodeVerifyDto {
   @IsString()
   @IsNotEmpty()
   token: string;
-  
+
   @ApiProperty()
   @IsString()
   @IsNotEmpty()

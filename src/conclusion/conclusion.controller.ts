@@ -1,7 +1,7 @@
 import {
   Body,
   Controller,
-  Put,
+  Post,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
@@ -15,7 +15,7 @@ export class ConclusionController {
   constructor(private readonly conclusionService: ConclusionService) {}
 
   @Public()
-  @Put()
+  @Post()
   @UseInterceptors(AnyFilesInterceptor())
   async createNewConclusion(
     @UploadedFiles() files: Array<Express.Multer.File>,

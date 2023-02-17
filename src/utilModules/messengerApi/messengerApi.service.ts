@@ -1,6 +1,6 @@
 import { HttpService } from '@nestjs/axios';
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { map, timeout, firstValueFrom, catchError } from 'rxjs';
+import { Injectable, Logger } from '@nestjs/common';
+import { map, timeout, firstValueFrom } from 'rxjs';
 import { MessengerApiDto } from './dto/messengerApiDto';
 import { ReqMessengerApiDto } from './dto/reqMessengerApiDto';
 import { v4 as uuidv4 } from 'uuid';

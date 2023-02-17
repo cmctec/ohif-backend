@@ -19,8 +19,8 @@ async function bootstrap() {
 
   //this is Cors conf
   app.enableCors();
-  
-  //Prisma Error handler 
+
+  //Prisma Error handler
   const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
 

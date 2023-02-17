@@ -1,6 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
-
 // is not Final
 type xmlVal = {
   _attributes?: { 'i:nil': boolean };

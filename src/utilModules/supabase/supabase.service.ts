@@ -4,12 +4,13 @@ import { PrismaClient } from '../../../generated/supabase';
 @Injectable()
 export class SupabaseService
   extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy {
-   async onModuleInit() {
-     await this.$connect();
-   }
- 
-   async onModuleDestroy() {
-     await this.$disconnect();
-   }
- }
+  implements OnModuleInit, OnModuleDestroy
+{
+  async onModuleInit() {
+    await this.$connect();
+  }
+
+  async onModuleDestroy() {
+    await this.$disconnect();
+  }
+}

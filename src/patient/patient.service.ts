@@ -1,10 +1,4 @@
-import {
-  ForbiddenException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../utilModules/prisma/prisma.service';
 import { SavePatientDto } from './dto/savePatient.dto';
 import { RpnService } from '../utilModules/rpn/rpn.service';
@@ -31,7 +25,7 @@ export class PatientService {
     const supabasePatient = await this.supabaseService.patients.findFirst({
       where: { iin: data.iin },
     });
-    let updateData: any = {
+    const updateData: any = {
       phone: data.phone || '',
       email: data.email || '',
       region: 'Astana',

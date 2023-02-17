@@ -6,5 +6,4 @@ import { HttpModule } from '@nestjs/axios';
   providers: [RecaptchaService],
   imports: [HttpModule],
 })
-
 export class RecaptchaModule {}
