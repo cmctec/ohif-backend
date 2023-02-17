@@ -4,9 +4,9 @@ FROM node:16.3.0-alpine AS build
 WORKDIR /ohif/app/main
 
 COPY package.json ./
-COPY yarn.lock ./
+COPY package-lock.json ./
 
-RUN  npm install --legacy-peer-deps
+RUN  npm ci
 
 COPY . ./
 RUN npx prisma generate --schema src/utilModules/prisma/schema.prisma
@@ -29,5 +29,5 @@ COPY --from=build /ohif/app/main/generated /ohif/app/main/generated
 
 RUN ls -a -l
 
-EXPOSE 3000
-CMD ["npm run", "start:prod" ]
+EXPOSE 8888
+CMD ["npm", "run", "start:prod" ]
