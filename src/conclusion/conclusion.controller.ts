@@ -6,7 +6,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
-import { Public } from 'nest-keycloak-connect';
+import { AuthenticatedUser } from 'nest-keycloak-connect';
 import { ConclusionService } from './conclusion.service';
 import { CreateNewConclusion } from './dto/createNewConclusion.dto';
 
@@ -14,13 +14,17 @@ import { CreateNewConclusion } from './dto/createNewConclusion.dto';
 export class ConclusionController {
   constructor(private readonly conclusionService: ConclusionService) {}
 
-  @Public()
   @Post()
   @UseInterceptors(AnyFilesInterceptor())
   async createNewConclusion(
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() data: CreateNewConclusion,
+    @AuthenticatedUser() user: { preferred_username: string },
   ) {
-    return this.conclusionService.createNewConclusion(data, files);
+    return this.conclusionService.createNewConclusion(
+      data,
+      files,
+      user.preferred_username,
+    );
   }
 }

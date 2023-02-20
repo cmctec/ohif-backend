@@ -1,15 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import {
-  appointment,
-  conclusion,
-  conclusion_image,
-  patients,
-  studies,
-} from 'generated/prisma';
+import { userPrismaType } from 'src/user/dto/user.dto';
+import { UserService } from 'src/user/user.service';
 import { PdfJsReportApiService } from 'src/utilModules/pdfJsReportApi/pdfJsReportApi.service';
 import { PrismaService } from 'src/utilModules/prisma/prisma.service';
 import { S3Service } from 'src/utilModules/s3/s3.service';
 import { CreateNewConclusion } from './dto/createNewConclusion.dto';
+import { conclusionPrismaType } from './dto/prismatypes';
 
 @Injectable()
 export class ConclusionService {
@@ -17,13 +13,18 @@ export class ConclusionService {
     private readonly s3Service: S3Service,
     private readonly prismaService: PrismaService,
     private readonly pdfJsReportApiService: PdfJsReportApiService,
+    private readonly userService: UserService,
   ) {}
 
   async createNewConclusion(
     data: CreateNewConclusion,
     files: Array<Express.Multer.File>,
+    user_name: string,
   ) {
     // может study_id быть не совпадёт
+    const user_data = await this.userService.getUserDataAndCheckOrganizations(
+      user_name,
+    );
     const createConclusiondata = await this.prismaService.conclusion.create({
       data: {
         study_id: data.study_id,
@@ -60,26 +61,24 @@ export class ConclusionService {
       },
     });
 
-    this.afterCreateNewConclusionGeneratePdfAndSave(updateConclusiondata);
+    this.afterCreateNewConclusionGeneratePdfAndSave(
+      updateConclusiondata,
+      user_data,
+    );
     return updateConclusiondata;
   }
 
   async afterCreateNewConclusionGeneratePdfAndSave(
-    data: conclusion & {
-      appointment: appointment[];
-      studies: studies & {
-        patients: patients;
-      };
-      conclusion_image: conclusion_image[];
-    },
+    data: conclusionPrismaType,
+    user_data: userPrismaType,
   ) {
-    //this вне потока может работать если error сервер падает
+    //это вне потока может работать если error сервер падает
     try {
       const PDFData = {
-        // TO DO get this Data
-        brand_name: 'Green Clinic',
+        brand_name: user_data.organization_user[0].organizations.name,
         service_name: 'Компьютерная томография',
-        tell2: '874718730000',
+
+        tell2: data.studies.patients.phone,
 
         conclusion_text: data.conclusion_text,
         doctor_fullname: data.doctor_fullname,

@@ -209,7 +209,7 @@ model services {
 
 model users {
   id                String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_name         String?             @db.VarChar(200)
+  user_name         String?             @unique @db.VarChar(200)
   full_name         String?             @db.VarChar(200)
   created_at        DateTime            @default(now()) @db.Timestamptz(6)
   updated_at        DateTime            @default(now()) @db.Timestamptz(6)

@@ -15,6 +15,7 @@ import {
 import { StudiesModule } from './studies/studies.module';
 import { ModalitiesModule } from './modalities/modalities.module';
 import { ConclusionModule } from './conclusion/conclusion.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ConclusionModule } from './conclusion/conclusion.module';
     StudiesModule,
     ModalitiesModule,
     ConclusionModule,
+    UserModule,
   ],
   controllers: [],
   providers: [
