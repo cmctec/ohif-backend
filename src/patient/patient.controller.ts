@@ -1,4 +1,4 @@
-import { Body, Controller, Put, UseGuards, Post } from '@nestjs/common';
+import { Body, Controller, Put, UseGuards, Post, HttpStatus, HttpException } from '@nestjs/common';
 import { Public } from 'nest-keycloak-connect';
 import { PatientService } from './patient.service';
 import { SavePatientDto } from './dto/savePatient.dto';
@@ -14,6 +14,9 @@ export class PatientsController {
   @Put('/save')
   @UseGuards(RecaptchaGuard)
   async savePatient(@Body() data: SavePatientDto) {
+    if( !data.phone || !data.email){
+      throw new HttpException('!data.phone || !data.email', HttpStatus.BAD_REQUEST);
+    }
     // https://stackoverflow.com/questions/65687512/nestjs-and-google-recaptcha  https://www.google.com/recaptcha/about/
     return await this.patientService.savePatientSupabase(data);
   }

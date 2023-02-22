@@ -55,4 +55,23 @@ export class MessengerApiService {
       ...data,
     });
   }
+
+  async medreview_conclusion_ready_urldicomarchive(data: {
+    phone: string;
+    template_arguments: {
+      name: string;
+      groupShortName: string;
+      url: string;
+      //dicom
+      url_anonym: string;
+    };
+  }) {
+    return await this.post({
+      template_name: 'medreview_conclusion_ready_urldicomarchive',
+      translite: false,
+      source: 'MEDISCAN',
+      type: 'WHATSAPP',
+      ...data,
+    });
+  }
 }

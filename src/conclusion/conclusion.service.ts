@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { userPrismaType } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
+import { MessengerApiService } from 'src/utilModules/messengerApi/messengerApi.service';
 import { PdfJsReportApiService } from 'src/utilModules/pdfJsReportApi/pdfJsReportApi.service';
 import { PrismaService } from 'src/utilModules/prisma/prisma.service';
 import { S3Service } from 'src/utilModules/s3/s3.service';
 import { CreateNewConclusion } from './dto/createNewConclusion.dto';
 import { conclusionPrismaType } from './dto/prismatypes';
+import { createHash } from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
+import { MaglitService } from 'src/utilModules/maglit/maglit.service';
 
 @Injectable()
 export class ConclusionService {
@@ -14,6 +18,8 @@ export class ConclusionService {
     private readonly prismaService: PrismaService,
     private readonly pdfJsReportApiService: PdfJsReportApiService,
     private readonly userService: UserService,
+    private readonly messengerApiService: MessengerApiService,
+    private readonly maglitService: MaglitService,
   ) {}
 
   async createNewConclusion(
@@ -78,7 +84,7 @@ export class ConclusionService {
         brand_name: user_data.organization_user[0].organizations.name,
         service_name: 'Компьютерная томография',
 
-        tell2: data.studies.patients.phone,
+        tell2: '+7 708 333 20 20, +7 (7172) 73 4759',
 
         conclusion_text: data.conclusion_text,
         doctor_fullname: data.doctor_fullname,
@@ -97,10 +103,44 @@ export class ConclusionService {
         'conclusion_pdf',
       );
 
-      await this.prismaService.conclusion.update({
+      const updateConData = await this.prismaService.conclusion.update({
         where: { id: data.id },
         data: { conclusion_url: s4DataTest.Location },
+        include: { conclusion_image: true },
       });
+
+      const hash = createHash('sha256').update(uuidv4()).digest('base64');
+      const data_maglit = this.maglitService.post;
+      if (!!data.studies.patients.phone) {
+        const mesegeData =
+          await this.messengerApiService.medreview_conclusion_ready_urldicomarchive(
+            {
+              phone: data.studies.patients.phone,
+              template_arguments: {
+                groupShortName: PDFData.brand_name,
+                name: PDFData.patient_fullname,
+                url: updateConData.conclusion_url,
+                url_anonym:
+                  updateConData.conclusion_image[0]?.image_url || 'пустой',
+              },
+            },
+          );
+
+        await this.prismaService.studies.update({
+          where: { id: data.study_id },
+          data: {
+            sms_status: mesegeData.status,
+            uuid_whatsapp: mesegeData.id,
+          },
+        });
+      } else {
+        await this.prismaService.studies.update({
+          where: { id: data.study_id },
+          data: {
+            sms_status: 'PhonеNotFound',
+          },
+        });
+      }
     } catch (err) {
       console.error(err);
     }

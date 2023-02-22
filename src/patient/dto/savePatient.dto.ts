@@ -12,12 +12,10 @@ export class SavePatientDto {
   iin: string;
 
   @ApiProperty()
-  @IsNotEmpty()
   @IsString()
   phone: string;
 
   @ApiProperty()
-  @IsNotEmpty()
   @IsString()
   email: string;
 }
