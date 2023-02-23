@@ -55,14 +55,12 @@ export class MessengerApiService {
       ...data,
     });
   }
-
   async medreview_conclusion_ready_urldicomarchive(data: {
     phone: string;
     template_arguments: {
       name: string;
       groupShortName: string;
       url: string;
-      //dicom
       url_anonym: string;
     };
   }) {

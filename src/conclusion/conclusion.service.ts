@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { userPrismaType } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
 import { MessengerApiService } from 'src/utilModules/messengerApi/messengerApi.service';
@@ -21,6 +21,7 @@ export class ConclusionService {
     private readonly messengerApiService: MessengerApiService,
     private readonly maglitService: MaglitService,
   ) {}
+  private readonly logger = new Logger();
 
   async createNewConclusion(
     data: CreateNewConclusion,
@@ -93,39 +94,56 @@ export class ConclusionService {
         research_date: String(data.created_at),
         c_image: data.conclusion_image[0]?.image_url,
       };
-      const PDF: Buffer = data.conclusion_image[0]?.image_url
-        ? await this.pdfJsReportApiService.mrconclusion(PDFData)
-        : await this.pdfJsReportApiService.mrconclusion_image_null(PDFData);
+      this.logger.log('feth pdfJsReportApiService.mrconclusion ...');
+      const PDF: Buffer =  await this.pdfJsReportApiService.mrconclusion(PDFData)
+      this.logger.log('final pdfJsReportApiService.mrconclusion');
 
+      this.logger.log('feth pdfs3Service.uploadPublicFile s3 ...');
       const s4DataTest = await this.s3Service.uploadPublicFile(
         PDF,
         'application/pdf',
         'conclusion_pdf',
       );
+      this.logger.log('final pdfs3Service.uploadPublicFile');
 
-      const updateConData = await this.prismaService.conclusion.update({
+      this.logger.log('feth conclusion.update ...');
+      await this.prismaService.conclusion.update({
         where: { id: data.id },
         data: { conclusion_url: s4DataTest.Location },
         include: { conclusion_image: true },
       });
+      this.logger.log('final conclusion.update ');
+      
+      const conclusionUrlMaglit = await this.maglitService.createAndAvailable(
+        s4DataTest.Location,
+      );
 
-      const hash = createHash('sha256').update(uuidv4()).digest('base64');
-      const data_maglit = this.maglitService.post;
+      this.logger.log('feth share_dicom_archive.create ...');
+      const token = createHash('sha256').update(uuidv4()).digest('base64');
+      await this.prismaService.share_dicom_archive.create({
+        data: { token, study_id: data.study_id },
+      });
+      this.logger.log('final share_dicom_archive.create');
+
+      const shareDicomArchiveMaglit =
+        await this.maglitService.createAndAvailable(
+          `https://mr.eyelab.kz/archive-request/${token}`,
+        );
+
       if (!!data.studies.patients.phone) {
+        const mesegeBody = {
+          phone: data.studies.patients.phone,
+          template_arguments: {
+            groupShortName: PDFData.brand_name,
+            name: PDFData.patient_fullname,
+            url: `https://sl.eyelab.kz/${shareDicomArchiveMaglit.maglitLink} `,
+            url_anonym: `https://sl.eyelab.kz/${conclusionUrlMaglit.maglitLink} `,
+          },
+        };
         const mesegeData =
           await this.messengerApiService.medreview_conclusion_ready_urldicomarchive(
-            {
-              phone: data.studies.patients.phone,
-              template_arguments: {
-                groupShortName: PDFData.brand_name,
-                name: PDFData.patient_fullname,
-                url: updateConData.conclusion_url,
-                url_anonym:
-                  updateConData.conclusion_image[0]?.image_url || 'пустой',
-              },
-            },
+            mesegeBody,
           );
-
         await this.prismaService.studies.update({
           where: { id: data.study_id },
           data: {
@@ -142,7 +160,7 @@ export class ConclusionService {
         });
       }
     } catch (err) {
-      console.error(err);
+      this.logger.error(err);
     }
   }
 }
