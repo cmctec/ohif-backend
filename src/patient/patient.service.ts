@@ -6,6 +6,7 @@ import { SupabaseService } from '../utilModules/supabase/supabase.service';
 import { SendOptCodeDto } from './dto/SendOptCodeDto';
 import { MessengerApiService } from '../utilModules/messengerApi/messengerApi.service';
 import { OptCodeVerifyDto } from './dto/OptCodeVerifyDto';
+import { UpdatePatientDto } from './dto/UpdatePatientDto';
 
 @Injectable()
 export class PatientService {
@@ -30,6 +31,7 @@ export class PatientService {
       email: data.email || '',
       region: 'Astana',
     };
+    //rpnData.iin._text check
     if (!!rpnData.iin._text) {
       updateData.bdate = new Date(rpnData.birthDate._text) || null;
       updateData.firstname = rpnData.firstName._text || '';
@@ -171,5 +173,62 @@ export class PatientService {
       verify_status: true,
       archive_url: studies.archive_url,
     };
+  }
+
+  async putPatientPhone({ id, phone }: UpdatePatientDto) {
+    const patientsUpdate = await this.prismaService.patients.update({
+      where: { id },
+      data: { phone },
+    });
+    const updateStatusStudies = await this.prismaService.$queryRawUnsafe(`
+      UPDATE studies SET SMS_status = 
+        case 
+            when status =  'FINISHED' then 'PENDING_TO_SEND'
+            when status != 'FINISHED' then ''
+        end
+      where "patient_id" = '${id}';
+    `);
+  }
+  async updatePatientIin(id: string, iin: string) {
+    const patients = await this.prismaService.patients.findUnique({
+      where: { id },
+    });
+    if (iin !== patients.iin) return;
+    const rpnData = await this.rpnService.getRpnIin(iin);
+    if (!!rpnData.iin) {
+      const patients = await this.prismaService.patients.findUnique({
+        where: { id },
+      });
+      let data;
+      //rpnData.iin._text check
+      if (!!rpnData.iin._text) {
+        data.bdate = new Date(rpnData.birthDate._text) || null;
+        data.firstname = rpnData.firstName._text || '';
+        data.gender = rpnData.sex._text || '';
+        data.lastname = rpnData.lastName._text || '';
+        data.surname = rpnData.secondName._text || '';
+        data.fullname = `${rpnData.lastName._text || ''} ${
+          rpnData.firstName._text || ''
+        } ${rpnData.secondName._text || ''}`;
+      } else {
+        data.iin = data.iin;
+        data.firstname = 'Пациент';
+      }
+
+      await this.prismaService.patients.update({
+        where: { id },
+        data,
+      });
+      const patient_studies = await this.prismaService.studies.findMany({
+        where: { patient_id: id },
+      });
+      const patient_studies_status = patient_studies.map((data) => {
+        return data.status === 'FINISHED';
+      });
+      // const patient_mod_studies = await this.prismaService.modalities.findFirst({
+      //   where: { modality_study: patient_studies[0]HttpException},
+      // });
+
+    }
   }
 }
