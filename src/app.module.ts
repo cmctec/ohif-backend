@@ -19,7 +19,6 @@ import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
-    //env config
     ConfigModule.forRoot(configuration),
     //KeycloakConnect config
     KeycloakConnectModule.registerAsync({
