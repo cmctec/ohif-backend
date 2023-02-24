@@ -20,7 +20,6 @@ import { UserModule } from './user/user.module';
 @Module({
   imports: [
     ConfigModule.forRoot(configuration),
-    //KeycloakConnect config
     KeycloakConnectModule.registerAsync({
       useExisting: KeycloakConfigService,
       imports: [AuthenticationModule],
