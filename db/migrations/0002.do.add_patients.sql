@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS patients
   surname varchar(200),
   bdate DATE,
   region varchar(200),
-  gernder varchar(200),
+  gender varchar(200),
   phone varchar(200),
   fullname varchar(200),
   email varchar(200),

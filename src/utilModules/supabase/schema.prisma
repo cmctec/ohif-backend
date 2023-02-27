@@ -95,6 +95,7 @@ model organizations {
   institution_name  String?             @db.VarChar
   modality_role     modality_role[]
   organization_user organization_user[]
+  orthanc_config    orthanc_config[]
   studies           studies[]
 }
 
@@ -148,28 +149,29 @@ model share_dicom_archive {
 }
 
 model studies {
-  id                  BigInt                @id @default(autoincrement())
-  created_at          DateTime?             @default(now()) @db.Timestamptz(6)
-  ohif_id             String?
-  patient_id          BigInt?
-  description         String?
-  date                String?               @db.VarChar
-  access_number       String?               @db.VarChar
-  status              String?               @db.VarChar
-  SMS_status          String?               @db.VarChar
-  incorrectIIN        Boolean?
-  UUID_whatsapp       String?               @db.VarChar
-  anonymized_ohif_id  String?               @db.VarChar
-  archive_url         String?
-  organization_id     BigInt?
-  service_count       BigInt?
-  service_code        String?
-  appointment         appointment[]
-  conclusion          conclusion[]
-  modality_study      modality_study[]
-  share_dicom_archive share_dicom_archive[]
-  organizations       organizations?        @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  patients            patients?             @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                    BigInt                @id @default(autoincrement())
+  created_at            DateTime?             @default(now()) @db.Timestamptz(6)
+  ohif_id               String?
+  patient_id            BigInt?
+  description           String?
+  date                  String?               @db.VarChar
+  access_number         String?               @db.VarChar
+  status                String?               @db.VarChar
+  SMS_status            String?               @db.VarChar
+  incorrectIIN          Boolean?
+  UUID_whatsapp         String?               @db.VarChar
+  anonymized_ohif_id    String?               @db.VarChar
+  archive_url           String?
+  organization_id       BigInt?
+  service_count         BigInt?
+  service_code          String?
+  uploaded_to_the_cloud Boolean?
+  appointment           appointment[]
+  conclusion            conclusion[]
+  modality_study        modality_study[]
+  share_dicom_archive   share_dicom_archive[]
+  organizations         organizations?        @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  patients              patients?             @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model users {
@@ -177,6 +179,7 @@ model users {
   created_at        DateTime?           @default(now()) @db.Timestamptz(6)
   username          String              @db.VarChar
   fullname          String?             @db.VarChar
+  stamps_url        String?             @db.VarChar
   organization_user organization_user[]
   role_user         role_user[]
 }
@@ -196,4 +199,15 @@ model services {
   service_name    String?
   dcm_description String?
   price           price[]
+}
+
+model orthanc_config {
+  id              BigInt         @id @default(autoincrement())
+  created_at      DateTime?      @default(now()) @db.Timestamptz(6)
+  organization_id BigInt?
+  dicom_aet       String?
+  dicom_hostname  String?
+  dicom_port      String?        @db.VarChar
+  type            String?        @db.VarChar
+  organizations   organizations? @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

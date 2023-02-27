@@ -35,22 +35,22 @@ export class RpnService {
       return undefined;
     }
   }
+  async getPatientData(iin: string) {
+    const rpnData = await this.getRpnIin(iin);
+    if (!!rpnData.iin._text) {
+      const fullName = `${rpnData.lastName._text || ''} ${
+        rpnData.firstName._text || ''
+      } ${rpnData.secondName._text || ''}`;
+      return {
+        iin: rpnData.iin._text || iin,
+        bdate: new Date(rpnData.birthDate._text) || null,
+        firstname: rpnData.firstName._text || '',
+        //TODO
+        gernder: rpnData.sex._text || '',
+        lastname: rpnData.lastName._text || '',
+        surname: rpnData.secondName._text || '',
+        fullname: fullName,
+      };
+    } else return;
+  }
 }
-
-//   const xmlData = convert.js2xml(
-//     {
-//       data: {
-//         GetPersonByFIOIIN: {
-//           iin: iin,
-//           page: 1,
-//           pageSize: 1,
-//         },
-//       },
-//     },
-//     {
-//       compact: true,
-//       ignoreComment: true,
-//       spaces: 4,
-//     },
-//   );
-//   const data = JSON.parse(xmlData);

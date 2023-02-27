@@ -13,7 +13,7 @@ import { SavePatientDto } from './dto/savePatient.dto';
 import { RecaptchaGuard } from '../utilModules/recaptcha/recaptcha.guard';
 import { SendOptCodeDto } from './dto/SendOptCodeDto';
 import { OptCodeVerifyDto } from './dto/OptCodeVerifyDto';
-import { UpdatePatientDto } from './dto/UpdatePatientDto';
+import { UpdatePatientDto, UpdatePatientIINDto } from './dto/UpdatePatientDto';
 
 @Controller('v1/patient')
 export class PatientsController {
@@ -47,8 +47,12 @@ export class PatientsController {
     return await this.patientService.optCodeVerify(data);
   }
 
-  @Put('/phone')
+  @Put('/phone/phone')
   async UpdatePatient(@Body() data: UpdatePatientDto) {
     return this.patientService.putPatientPhone(data);
+  }
+  @Put('/phone/iin')
+  async UpdatePatientIIN(@Body() data: UpdatePatientIINDto) {
+    return this.patientService.putPatientIIN(data);
   }
 }

@@ -6,15 +6,22 @@ import { SupabaseService } from '../utilModules/supabase/supabase.service';
 import { SendOptCodeDto } from './dto/SendOptCodeDto';
 import { MessengerApiService } from '../utilModules/messengerApi/messengerApi.service';
 import { OptCodeVerifyDto } from './dto/OptCodeVerifyDto';
-import { UpdatePatientDto } from './dto/UpdatePatientDto';
+import { UpdatePatientDto, UpdatePatientIINDto } from './dto/UpdatePatientDto';
+import { UserService } from 'src/user/user.service';
+import { PdfJsReportApiService } from 'src/utilModules/pdfJsReportApi/pdfJsReportApi.service';
+import { S3Service } from 'src/utilModules/s3/s3.service';
+import { string } from 'joi';
 
 @Injectable()
 export class PatientService {
   constructor(
+    private readonly s3Service: S3Service,
     private readonly prismaService: PrismaService,
     private readonly supabaseService: SupabaseService,
     private readonly rpnService: RpnService,
     private readonly messengerApiService: MessengerApiService,
+    private readonly userService: UserService,
+    private readonly pdfJsReportApiService: PdfJsReportApiService,
   ) {}
   private readonly logger = new Logger();
 
@@ -176,59 +183,130 @@ export class PatientService {
   }
 
   async putPatientPhone({ id, phone }: UpdatePatientDto) {
-    const patientsUpdate = await this.prismaService.patients.update({
+    const { iin } = await this.prismaService.patients.findUnique({
+      where: { id },
+    });
+    await this.prismaService.patients.update({
       where: { id },
       data: { phone },
     });
-    const updateStatusStudies = await this.prismaService.$queryRawUnsafe(`
-      UPDATE studies SET SMS_status = 
-        case 
-            when status =  'FINISHED' then 'PENDING_TO_SEND'
-            when status != 'FINISHED' then ''
-        end
-      where "patient_id" = '${id}';
-    `);
+    await this.prismaService.$queryRawUnsafe(
+      `UPDATE studies SET SMS_status = case when status =  'FINISHED' then 'PENDING_TO_SEND' when status != 'FINISHED' then '' end where "patient_id" = '${id}';`,
+    );
+    return { success: true };
   }
-  async updatePatientIin(id: string, iin: string) {
-    const patients = await this.prismaService.patients.findUnique({
+  async putPatientIIN({ id, iin }: UpdatePatientIINDto) {
+    const oldData = await this.prismaService.patients.findUnique({
       where: { id },
     });
-    if (iin !== patients.iin) return;
-    const rpnData = await this.rpnService.getRpnIin(iin);
-    if (!!rpnData.iin) {
+    await this.prismaService.patients.update({
+      where: { id },
+      data: { iin },
+    });
+    await this.prismaService.$queryRawUnsafe(
+      `UPDATE studies SET SMS_status = case when status =  'FINISHED' then 'PENDING_TO_SEND' when status != 'FINISHED' then '' end where "patient_id" = '${id}';`,
+    );
+    this.updateConclusionAfterUpdatePatientData(
+      { id, iin },
+      { iin: oldData.iin },
+    );
+    return { success: true };
+  }
+
+  async updateConclusionAfterUpdatePatientData(
+    data: updateConclusionAfterUpdatePatientDataDto,
+    oldData: { iin: string },
+  ) {
+    try {
+      this.logger.log('start func updateConclusionAfterUpdatePatientData');
       const patients = await this.prismaService.patients.findUnique({
-        where: { id },
+        where: { id: data.id },
       });
-      let data;
-      //rpnData.iin._text check
-      if (!!rpnData.iin._text) {
-        data.bdate = new Date(rpnData.birthDate._text) || null;
-        data.firstname = rpnData.firstName._text || '';
-        data.gender = rpnData.sex._text || '';
-        data.lastname = rpnData.lastName._text || '';
-        data.surname = rpnData.secondName._text || '';
-        data.fullname = `${rpnData.lastName._text || ''} ${
-          rpnData.firstName._text || ''
-        } ${rpnData.secondName._text || ''}`;
-      } else {
-        data.iin = data.iin;
-        data.firstname = 'Пациент';
+      console.log(oldData.iin, patients.iin);
+      if (oldData.iin === patients.iin) return;
+      this.logger.log('updateConclusionAfterUpdatePatientData validation');
+
+      const RPN = await this.rpnService.getPatientData(data.iin);
+      this.logger.log('RPN');
+      if (RPN) {
+        const patients = await this.prismaService.patients.update({
+          where: { id: data.id },
+          data: RPN,
+          include: {
+            studies: {
+              include: {
+                appointment: true,
+                conclusion: {
+                  include: {
+                    conclusion_image: true,
+                  },
+                },
+                modality_study: {
+                  include: {
+                    modalities: true,
+                    studies: true,
+                  },
+                },
+                patients: true,
+              },
+            },
+          },
+        });
+        this.logger.log('RPN success update');
+        const patient_studies = patients.studies[0];
+        if (patient_studies.status === 'FINISHED') {
+          // TODO update all concusions
+          // dont one doctor
+          const user = await this.prismaService.users.findFirst({
+            where: { user_name: patient_studies.conclusion[0].doctor_iin },
+          });
+          const user_data =
+            await this.userService.getUserDataAndCheckOrganizations(
+              user.user_name,
+            );
+          const PDF: Buffer = await this.pdfJsReportApiService.mrconclusion({
+            brand_name: user_data.organization_user[0].organizations.name,
+            service_name: 'Компьютерная томография',
+            tell2: '+7 708 333 20 20, +7 (7172) 73 4759',
+            conclusion_text: patient_studies.conclusion[0].conclusion_text,
+            doctor_fullname: patient_studies.conclusion[0].doctor_fullname,
+            patient_fullname: patient_studies.patients.fullname,
+            patient_iin: patient_studies.patients.iin,
+            research_date: String(patient_studies.conclusion[0].created_at),
+            c_image: patient_studies.conclusion[0].conclusion_url,
+          });
+          this.logger.log('PDF success');
+          await this.s3Service.updatePublicFile(
+            PDF,
+            'application/pdf',
+            patient_studies.conclusion[0].conclusion_url,
+          );
+          this.logger.log('Update S3 success');
+        }
       }
+      const appointment = await this.prismaService.appointment.findFirst({
+        where: {
+          patient_iin: patients.iin,
+        },
+      });
+      if (!appointment) return;
 
-      await this.prismaService.patients.update({
-        where: { id },
-        data,
+      const patient_studies = await this.prismaService.studies.findFirst({
+        where: { patient_id: data.id },
       });
-      const patient_studies = await this.prismaService.studies.findMany({
-        where: { patient_id: id },
+      if (!appointment.study_id) return undefined;
+      await this.prismaService.appointment.update({
+        where: { id: appointment.id },
+        data: {
+          study_id: patient_studies.id,
+          status:
+            patient_studies.status === 'FINISHED'
+              ? 'LOADED_FROM_API'
+              : 'SENT_TO_API',
+        },
       });
-      const patient_studies_status = patient_studies.map((data) => {
-        return data.status === 'FINISHED';
-      });
-      // const patient_mod_studies = await this.prismaService.modalities.findFirst({
-      //   where: { modality_study: patient_studies[0]HttpException},
-      // });
-
+    } catch (e) {
+      this.logger.error(e);
     }
   }
 }

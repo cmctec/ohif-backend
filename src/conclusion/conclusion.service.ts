@@ -26,9 +26,10 @@ export class ConclusionService {
   async createNewConclusion(
     data: CreateNewConclusion,
     files: Array<Express.Multer.File>,
-    user_name: string,
+    user_name: string, // is doctor uuid
   ) {
     // может study_id быть не совпадёт
+    //TODO doctor_iin error if null in update
     const user_data = await this.userService.getUserDataAndCheckOrganizations(
       user_name,
     );
@@ -91,11 +92,14 @@ export class ConclusionService {
         doctor_fullname: data.doctor_fullname,
         patient_fullname: data.studies.patients.fullname,
         patient_iin: data.studies.patients.iin,
+        //TO DO
         research_date: String(data.created_at),
         c_image: data.conclusion_image[0]?.image_url,
       };
       this.logger.log('feth pdfJsReportApiService.mrconclusion ...');
-      const PDF: Buffer =  await this.pdfJsReportApiService.mrconclusion(PDFData)
+      const PDF: Buffer = await this.pdfJsReportApiService.mrconclusion(
+        PDFData,
+      );
       this.logger.log('final pdfJsReportApiService.mrconclusion');
 
       this.logger.log('feth pdfs3Service.uploadPublicFile s3 ...');
@@ -113,7 +117,7 @@ export class ConclusionService {
         include: { conclusion_image: true },
       });
       this.logger.log('final conclusion.update ');
-      
+
       const conclusionUrlMaglit = await this.maglitService.createAndAvailable(
         s4DataTest.Location,
       );

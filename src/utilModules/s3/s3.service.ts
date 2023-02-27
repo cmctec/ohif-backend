@@ -31,4 +31,29 @@ export class S3Service {
       .promise();
     return { Location: uploadResult.Location, mimetype, ACL: 'public-read' };
   }
+  async deletePublicFile(fileKey: string) {
+    return await this.s3
+      .deleteObject({ Bucket: this.bucketData, Key: fileKey })
+      .promise();
+  }
+  async updatePublicFile(
+    dataBuffer: Buffer,
+    mimetype: string,
+    image_url: string,
+  ) {
+    const Key = image_url.slice(
+      'https://10910-medreview.object.pscloud.io/'.length,
+    );
+    await this.deletePublicFile(Key);
+    const data = await this.s3
+      .upload({
+        Bucket: this.bucketData,
+        Body: dataBuffer,
+        ContentType: mimetype,
+        Key,
+        ACL: 'public-read',
+      })
+      .promise();
+    console.log({ data });
+  }
 }
