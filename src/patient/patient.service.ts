@@ -10,7 +10,6 @@ import { UpdatePatientDto, UpdatePatientIINDto } from './dto/UpdatePatientDto';
 import { UserService } from 'src/user/user.service';
 import { PdfJsReportApiService } from 'src/utilModules/pdfJsReportApi/pdfJsReportApi.service';
 import { S3Service } from 'src/utilModules/s3/s3.service';
-import { string } from 'joi';
 
 @Injectable()
 export class PatientService {

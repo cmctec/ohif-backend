@@ -75,7 +75,7 @@ model patients {
   surname    String?   @db.VarChar(200)
   bdate      DateTime? @db.Date
   region     String?   @db.VarChar(200)
-  gernder    String?   @db.VarChar(200)
+  gender     String?   @db.VarChar(200)
   phone      String?   @db.VarChar(200)
   fullname   String?   @db.VarChar(200)
   email      String?   @db.VarChar(200)

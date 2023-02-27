@@ -46,7 +46,7 @@ export class RpnService {
         bdate: new Date(rpnData.birthDate._text) || null,
         firstname: rpnData.firstName._text || '',
         //TODO
-        gernder: rpnData.sex._text || '',
+        gender: rpnData.sex._text || '',
         lastname: rpnData.lastName._text || '',
         surname: rpnData.secondName._text || '',
         fullname: fullName,
