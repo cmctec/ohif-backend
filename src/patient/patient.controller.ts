@@ -23,9 +23,9 @@ export class PatientsController {
   @Put('/save')
   @UseGuards(RecaptchaGuard)
   async savePatient(@Body() data: SavePatientDto) {
-    if (!data.phone || !data.email) {
+    if (!data.phone && !data.email) {
       throw new HttpException(
-        '!data.phone || !data.email',
+        'data.phone && data.email',
         HttpStatus.BAD_REQUEST,
       );
     }
