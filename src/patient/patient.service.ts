@@ -33,6 +33,7 @@ export class PatientService {
     const supabasePatient = await this.supabaseService.patients.findFirst({
       where: { iin: data.iin },
     });
+    this.logger.log(`supabasePatient ${supabasePatient?.iin}`);
     const updateData = {
       phone: data.phone || '',
       email: data.email || '',
@@ -59,6 +60,7 @@ export class PatientService {
         status: 'FINISHED',
       },
     });
+    this.logger.log('get studies');
     if (studies) {
       await this.supabaseService.studies.update({
         where: { id: studies.id },

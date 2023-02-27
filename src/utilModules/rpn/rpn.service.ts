@@ -37,7 +37,7 @@ export class RpnService {
   }
   async getPatientData(iin: string) {
     const rpnData = await this.getRpnIin(iin);
-    if (!!rpnData.iin._text) {
+    if (!!rpnData?.iin?._text) {
       const fullName = `${rpnData.lastName._text || ''} ${
         rpnData.firstName._text || ''
       } ${rpnData.secondName._text || ''}`;
