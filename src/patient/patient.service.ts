@@ -29,32 +29,17 @@ export class PatientService {
     this.logger.log('savePatient http');
 
     data.phone = data.phone.replace(/[\s\(\)\+]/g, '');
-    const rpnData = await this.rpnService.getRpnIin(data.iin);
+    const RPN = await this.rpnService.getPatientData(data.iin);
     const supabasePatient = await this.supabaseService.patients.findFirst({
       where: { iin: data.iin },
     });
-    const updateData: any = {
+    const updateData = {
       phone: data.phone || '',
       email: data.email || '',
       region: 'Astana',
+      iin: data.iin,
+      ...RPN,
     };
-    //rpnData.iin._text check
-    if (!!rpnData.iin._text) {
-      updateData.bdate = new Date(rpnData.birthDate._text) || null;
-      updateData.firstname = rpnData.firstName._text || '';
-      updateData.gender = rpnData.sex._text || '';
-      updateData.lastname = rpnData.lastName._text || '';
-      updateData.surname = rpnData.secondName._text || '';
-      updateData.fullname = `${rpnData.lastName._text || ''} ${
-        rpnData.firstName._text || ''
-      } ${rpnData.secondName._text || ''}`;
-    } else {
-      updateData.iin = data.iin;
-      updateData.firstname = 'Пациент';
-    }
-    if (supabasePatient.iin) {
-      updateData.iin = data.iin;
-    }
 
     await this.supabaseService.patients.update({
       where: { id: supabasePatient.id },
