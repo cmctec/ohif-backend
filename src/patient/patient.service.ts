@@ -30,9 +30,10 @@ export class PatientService {
 
     data.phone = data.phone.replace(/[\s\(\)\+]/g, '');
     const RPN = await this.rpnService.getPatientData(data.iin);
-    const supabasePatient = await this.supabaseService.patients.findFirst({
+    let supabasePatient = await this.supabaseService.patients.findFirst({
       where: { iin: data.iin },
     });
+
     this.logger.log(`supabasePatient ${supabasePatient?.iin}`);
     const updateData = {
       phone: data.phone || '',
@@ -41,11 +42,18 @@ export class PatientService {
       iin: data.iin,
       ...RPN,
     };
-
-    await this.supabaseService.patients.update({
-      where: { id: supabasePatient.id },
-      data: updateData,
-    });
+    if (supabasePatient) {
+      this.logger.log('savePatient update start');
+      supabasePatient = await this.supabaseService.patients.update({
+        where: { id: supabasePatient.id },
+        data: updateData,
+      });
+    } else {
+      this.logger.log('savePatient create start');
+      supabasePatient = await this.supabaseService.patients.create({
+        data: updateData,
+      });
+    }
 
     this.logger.log('savePatient');
 
