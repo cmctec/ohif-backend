@@ -10,6 +10,7 @@ import { conclusionPrismaType } from './dto/prismatypes';
 import { createHash } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { MaglitService } from 'src/utilModules/maglit/maglit.service';
+import { format } from 'date-fns';
 
 @Injectable()
 export class ConclusionService {
@@ -92,8 +93,7 @@ export class ConclusionService {
         doctor_fullname: data.doctor_fullname,
         patient_fullname: data.studies.patients.fullname,
         patient_iin: data.studies.patients.iin,
-        //TO DO
-        research_date: String(data.created_at),
+        research_date: format(data.created_at, 'mm/dd/yyyy'),
         c_image: data.conclusion_image[0]?.image_url,
       };
       this.logger.log('feth pdfJsReportApiService.mrconclusion ...');

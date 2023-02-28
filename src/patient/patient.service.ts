@@ -10,6 +10,7 @@ import { UpdatePatientDto, UpdatePatientIINDto } from './dto/UpdatePatientDto';
 import { UserService } from 'src/user/user.service';
 import { PdfJsReportApiService } from 'src/utilModules/pdfJsReportApi/pdfJsReportApi.service';
 import { S3Service } from 'src/utilModules/s3/s3.service';
+import { format } from 'date-fns';
 
 @Injectable()
 export class PatientService {
@@ -21,7 +22,7 @@ export class PatientService {
     private readonly messengerApiService: MessengerApiService,
     private readonly userService: UserService,
     private readonly pdfJsReportApiService: PdfJsReportApiService,
-  ) { }
+  ) {}
   private readonly logger = new Logger();
 
   async savePatientSupabase(data: SavePatientDto) {
@@ -86,7 +87,10 @@ export class PatientService {
         where: { token: data.token },
       });
     if (!share_dicom_archive) {
-      throw new HttpException('share_dicom_archive not exist', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'share_dicom_archive not exist',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     if (share_dicom_archive?.number_of_attempts > 4) {
       throw new HttpException(
@@ -273,7 +277,10 @@ export class PatientService {
             doctor_fullname: patient_studies.conclusion[0].doctor_fullname,
             patient_fullname: patient_studies.patients.fullname,
             patient_iin: patient_studies.patients.iin,
-            research_date: String(patient_studies.conclusion[0].created_at),
+            research_date: format(
+              patient_studies.conclusion[0].created_at,
+              'mm/dd/yyyy',
+            ),
             c_image: patient_studies.conclusion[0].conclusion_url,
           });
           this.logger.log('PDF success');
