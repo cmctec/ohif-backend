@@ -3,6 +3,7 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Post,
   Query,
   ValidationPipe,
 } from '@nestjs/common';
@@ -24,5 +25,9 @@ export class StudiesController {
     queryParams: GetAllStudiesDto,
   ) {
     return this.studiesService.getAllStudies(queryParams);
+  }
+  @Post()
+  async createStudies() {
+    return this.studiesService.createStudies();
   }
 }

@@ -76,4 +76,21 @@ export class StudiesService {
     ]);
     return { count, data };
   }
+  async createStudies() {
+    await this.prismaService.studies.create({
+      data: {
+        ohif_id: '',
+        patient_id: '',
+        description: '',
+        date: '',
+        access_number: '',
+        status: '',
+        sms_status: ' ',
+        incorrectiin: true,
+        uuid_whatsapp: '',
+        anonymized_ohif_id: '',
+        archive_url: '',
+      },
+    });
+  }
 }

@@ -117,7 +117,7 @@ export class PatientService {
       template_arguments: { otpcode },
     });
 
-    const TESTDATA = await this.supabaseService.share_dicom_archive.update({
+    await this.supabaseService.share_dicom_archive.update({
       where: { id: share_dicom_archive.id },
       data: {
         ...(share_dicom_archive.otp_code
@@ -127,7 +127,6 @@ export class PatientService {
         number_of_attempts: (share_dicom_archive.number_of_attempts || 0) + 1,
       },
     });
-    ""
     return { message: 'OTP code re-sent successfully' };
   }
   async optCodeVerify(data: OptCodeVerifyDto) {
@@ -185,7 +184,7 @@ export class PatientService {
   }
 
   async putPatientPhone({ id, phone }: UpdatePatientDto) {
-    const { iin } = await this.prismaService.patients.findUnique({
+    await this.prismaService.patients.findUnique({
       where: { id },
     });
     await this.prismaService.patients.update({
