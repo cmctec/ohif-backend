@@ -15,5 +15,5 @@ export class OptCodeVerifyDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  otp_code: string;
+  otpcode: string;
 }

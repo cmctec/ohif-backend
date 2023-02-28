@@ -21,7 +21,7 @@ export class PatientService {
     private readonly messengerApiService: MessengerApiService,
     private readonly userService: UserService,
     private readonly pdfJsReportApiService: PdfJsReportApiService,
-  ) {}
+  ) { }
   private readonly logger = new Logger();
 
   async savePatientSupabase(data: SavePatientDto) {
@@ -85,15 +85,17 @@ export class PatientService {
       await this.supabaseService.share_dicom_archive.findFirst({
         where: { token: data.token },
       });
-
-    if (share_dicom_archive.number_of_attempts <= 3) {
+    if (!share_dicom_archive) {
+      throw new HttpException('share_dicom_archive not exist', HttpStatus.BAD_REQUEST);
+    }
+    if (share_dicom_archive?.number_of_attempts > 4) {
       throw new HttpException(
         'Exceeded the number of attempts to request an access code',
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    if (!share_dicom_archive.token) {
+    if (!share_dicom_archive?.token) {
       throw new HttpException('Token not found', HttpStatus.BAD_REQUEST);
     }
 
@@ -110,29 +112,35 @@ export class PatientService {
     }
 
     const otpcode = String(Math.floor(100000 + Math.random() * 900000));
-    this.messengerApiService.medreview_otpcode_dicom_archive({
+    await this.messengerApiService.medreview_otpcode_dicom_archive({
       phone: patients.phone,
       template_arguments: { otpcode },
     });
 
-    this.supabaseService.share_dicom_archive.update({
+    const TESTDATA = await this.supabaseService.share_dicom_archive.update({
       where: { id: share_dicom_archive.id },
       data: {
         ...(share_dicom_archive.otp_code
-          ? { otp_code: otpcode }
-          : { status: 're_sent_otpcode' }),
+          ? { status: 're_sent_otpcode' }
+          : { otp_code: otpcode }),
         doctor_iin: data.doctor_iin,
-        number_of_attempts: share_dicom_archive.number_of_attempts++,
+        number_of_attempts: (share_dicom_archive.number_of_attempts || 0) + 1,
       },
     });
-    return;
+    ""
+    return { message: 'OTP code re-sent successfully' };
   }
   async optCodeVerify(data: OptCodeVerifyDto) {
     const share_dicom_archive =
       await this.supabaseService.share_dicom_archive.findFirst({
         where: { token: data.token, doctor_iin: data.doctor_iin },
       });
-
+    if (!share_dicom_archive) {
+      throw new HttpException(
+        'share_dicom_archive not exist',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     if (!share_dicom_archive.token) {
       throw new HttpException(
         'doctor_iin or token not exist',
@@ -140,7 +148,7 @@ export class PatientService {
       );
     }
 
-    if (data.otp_code !== share_dicom_archive.otp_code) {
+    if (data.otpcode !== share_dicom_archive.otp_code) {
       await this.supabaseService.share_dicom_archive.update({
         where: { id: share_dicom_archive.id },
         data: {
