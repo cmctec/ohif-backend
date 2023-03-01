@@ -36,6 +36,7 @@
     "date-fns": "^2.29.3",
     "dotenv": "^16.0.3",
     "joi": "^17.7.0",
+    "lodash": "^4.17.21",
     "nest-keycloak-connect": "^1.9.1",
     "nestjs-keycloak": "^2.1.7",
     "pg": "^8.8.0",

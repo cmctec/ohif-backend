@@ -1,12 +1,17 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { map, timeout, firstValueFrom } from 'rxjs';
 import { RpnDataDto } from './dto/rpn.dto';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const convert = require('xml-js');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const _ = require('lodash');
+import { LodashService } from 'src/utilModules/lodash/lodash.service';
 
 @Injectable()
 export class RpnService {
+  @Inject(LodashService)
+  private readonly itemService: LodashService;
   constructor(private readonly httpService: HttpService) {}
   private readonly logger = new Logger();
   async getRpnIin(iin: string): Promise<RpnDataDto> {
@@ -22,14 +27,14 @@ export class RpnService {
             },
           )
           .pipe(
-            timeout(10000),
+            timeout(5000),
             map((res: { data: string }) =>
               convert.xml2js(res.data, { compact: true }),
             ),
           ),
       );
       this.logger.log('feth RPN Success');
-      return rpn.data.GetPersonByFIOIINResponse.array;
+      return rpn.data?.GetPersonByFIOIINResponse?.array;
     } catch (e) {
       this.logger.error(`feth RPN Error:  ${e}`);
       return undefined;
@@ -38,19 +43,24 @@ export class RpnService {
   async getPatientData(iin: string) {
     const rpnData = await this.getRpnIin(iin);
     if (!!rpnData?.iin?._text) {
-      const fullName = `${rpnData.lastName._text || ''} ${
-        rpnData.firstName._text || ''
-      } ${rpnData.secondName._text || ''}`;
-      return {
-        iin: rpnData.iin._text || iin,
-        bdate: new Date(rpnData.birthDate._text) || null,
-        firstname: rpnData.firstName._text || '',
+      const fullName = [
+        rpnData?.lastName?._text,
+        rpnData?.firstName?._text,
+        rpnData?.secondName?._text,
+      ].join(' ');
+      return this.itemService.pickBy({
+        iin: rpnData?.iin?._text,
+        bdate: new Date(rpnData?.birthDate?._text),
+        firstname: rpnData?.firstName?._text,
         //TODO
-        gender: rpnData.sex._text || '',
-        lastname: rpnData.lastName._text || '',
-        surname: rpnData.secondName._text || '',
-        fullname: fullName,
-      };
-    } else return;
+        gender: rpnData?.sex?._text,
+        lastname: rpnData?.lastName?._text,
+        surname: rpnData?.secondName?._text,
+        fullname: fullName?.trim() && fullName,
+      });
+    } else {
+      this.logger.warn(`RPN not exist ${iin}`);
+      return;
+    }
   }
 }

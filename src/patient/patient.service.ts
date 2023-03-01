@@ -11,6 +11,7 @@ import { UserService } from 'src/user/user.service';
 import { PdfJsReportApiService } from 'src/utilModules/pdfJsReportApi/pdfJsReportApi.service';
 import { S3Service } from 'src/utilModules/s3/s3.service';
 import { format } from 'date-fns';
+import { LodashService } from 'src/utilModules/lodash/lodash.service';
 
 @Injectable()
 export class PatientService {
@@ -22,36 +23,37 @@ export class PatientService {
     private readonly messengerApiService: MessengerApiService,
     private readonly userService: UserService,
     private readonly pdfJsReportApiService: PdfJsReportApiService,
+    private readonly lodashService: LodashService,
   ) {}
   private readonly logger = new Logger();
 
   async savePatientSupabase(data: SavePatientDto) {
-    this.logger.log('savePatient http');
-
     data.phone = data.phone.replace(/[\s\(\)\+]/g, '');
-    const RPN = await this.rpnService.getPatientData(data.iin);
+
     let supabasePatient = await this.supabaseService.patients.findFirst({
       where: { iin: data.iin },
     });
-
-    this.logger.log(`supabasePatient ${supabasePatient?.iin}`);
-    const updateData = {
-      phone: data.phone || '',
-      email: data.email || '',
-      region: 'Astana',
-      iin: data.iin,
+    const RPN = await this.rpnService.getPatientData(data.iin);
+    const updateOrCreateData = this.lodashService.pickBy({
+      ...supabasePatient,
       ...RPN,
-    };
+      iin: data.iin,
+      phone: data.phone,
+      email: data.email,
+      region: 'Astana',
+      //если в базе есть то не изменятся
+    });
+
     if (supabasePatient) {
-      this.logger.log('savePatient update start');
+      this.logger.log('savePatient update');
       supabasePatient = await this.supabaseService.patients.update({
         where: { id: supabasePatient.id },
-        data: updateData,
+        data: updateOrCreateData,
       });
     } else {
-      this.logger.log('savePatient create start');
+      this.logger.log('savePatient create');
       supabasePatient = await this.supabaseService.patients.create({
-        data: updateData,
+        data: updateOrCreateData,
       });
     }
 
@@ -59,7 +61,7 @@ export class PatientService {
 
     if (!supabasePatient.iin) return;
 
-    this.logger.log('savePatient studies start');
+    this.logger.log('savePatient studies update');
 
     const studies = await this.supabaseService.studies.findFirst({
       where: {
@@ -68,7 +70,6 @@ export class PatientService {
         status: 'FINISHED',
       },
     });
-    this.logger.log('get studies');
     if (studies) {
       await this.supabaseService.studies.update({
         where: { id: studies.id },

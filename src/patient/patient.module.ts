@@ -9,6 +9,7 @@ import { MessengerApiModule } from '../utilModules/messengerApi/messengerApi.mod
 import { UserModule } from 'src/user/user.module';
 import { PdfJsReportApiModule } from 'src/utilModules/pdfJsReportApi/pdfJsReportApi.module';
 import { S3Module } from 'src/utilModules/s3/s3.module';
+import { lodashModule } from 'src/utilModules/lodash/lodash.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { S3Module } from 'src/utilModules/s3/s3.module';
     HttpModule,
     MessengerApiModule,
     S3Module,
+    lodashModule,
   ],
   controllers: [PatientsController],
   providers: [PatientService],
