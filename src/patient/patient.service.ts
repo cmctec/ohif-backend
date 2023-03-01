@@ -176,8 +176,18 @@ export class PatientService {
       },
     });
 
-    const studies = await this.supabaseService.studies.findFirst({
+    let studies = await this.supabaseService.studies.findFirst({
       where: { id: share_dicom_archive.study_id },
+    });
+    const url = new URL(studies.archive_url);
+    const FileParamsKey = url.pathname.split('/')[2];
+    const new_archive_url = await this.s3Service.getSignedUrl(FileParamsKey);
+
+    studies = await this.supabaseService.studies.update({
+      where: { id: share_dicom_archive.study_id },
+      data: {
+        archive_url: new_archive_url,
+      },
     });
 
     return {
@@ -188,7 +198,7 @@ export class PatientService {
   }
 
   async putPatientPhone({ id, phone }: UpdatePatientDto) {
-    await this.prismaService.patients.findUnique({
+    const oldData = await this.prismaService.patients.findUnique({
       where: { id },
     });
     await this.prismaService.patients.update({
@@ -197,6 +207,10 @@ export class PatientService {
     });
     await this.prismaService.$queryRawUnsafe(
       `UPDATE studies SET SMS_status = case when status =  'FINISHED' then 'PENDING_TO_SEND' when status != 'FINISHED' then '' end where "patient_id" = '${id}';`,
+    );
+    this.updateConclusionAfterUpdatePatientData(
+      { id, phone },
+      { iin: oldData.iin },
     );
     return { success: true };
   }
@@ -217,7 +231,7 @@ export class PatientService {
     );
     return { success: true };
   }
-
+  //TO DO перенести часть кода в модуль conclusion
   async updateConclusionAfterUpdatePatientData(
     data: updateConclusionAfterUpdatePatientDataDto,
     oldData: { iin: string },

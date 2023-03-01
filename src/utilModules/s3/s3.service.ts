@@ -13,6 +13,7 @@ export class S3Service {
     secretAccessKey: this.configService.get('S3_SECRET_ACCESS_KEY'),
     region: this.configService.get('S3_REGION'),
     endpoint: this.configService.get('ENDPOINT'),
+    signatureVersion: 'v4',
   });
 
   async uploadPublicFile(
@@ -42,7 +43,7 @@ export class S3Service {
     image_url: string,
   ) {
     const Key = image_url.slice(
-      'https://10910-medreview.object.pscloud.io/'.length,
+      'https://11076-dcm-archive.archive.pscloud.io/'.length,
     );
     await this.deletePublicFile(Key);
     const data = await this.s3
@@ -55,5 +56,12 @@ export class S3Service {
       })
       .promise();
     console.log({ data });
+  }
+  async getSignedUrl(Key: string) {
+    return this.s3.getSignedUrl('getObject', {
+      Bucket: this.bucketData,
+      Key,
+      Expires: 604800,
+    });
   }
 }
