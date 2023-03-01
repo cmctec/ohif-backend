@@ -180,8 +180,10 @@ export class PatientService {
       where: { id: share_dicom_archive.study_id },
     });
     const url = new URL(studies.archive_url);
-    const FileParamsKey = url.pathname.split('/')[2];
-    const new_archive_url = await this.s3Service.getSignedUrl(FileParamsKey);
+    const FileParamsKey = url.pathname.split('/');
+    const new_archive_url = await this.s3Service.getSignedUrl(
+      FileParamsKey[2] || FileParamsKey[1],
+    );
 
     studies = await this.supabaseService.studies.update({
       where: { id: share_dicom_archive.study_id },
