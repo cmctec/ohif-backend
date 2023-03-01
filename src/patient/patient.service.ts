@@ -41,7 +41,6 @@ export class PatientService {
       phone: data.phone,
       email: data.email,
       region: 'Astana',
-      //если в базе есть то не изменятся
     });
 
     if (supabasePatient) {
