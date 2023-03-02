@@ -18,9 +18,9 @@ fixlint:
 	yarn lint -- --fix
 # DONT Used generated folder "test" with  "module" "controller" "service" 
 gmod:
-	nest g module users
-	nest g controller users
-	nest g service users
+	npx nest g module organizations
+	npx nest g controller organizations
+	npx nest g service organizations
 i:
 	yarn install
 pgGen: 

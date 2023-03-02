@@ -25,5 +25,6 @@ import { lodashModule } from 'src/utilModules/lodash/lodash.module';
   ],
   controllers: [PatientsController],
   providers: [PatientService],
+  exports: [PatientService],
 })
 export class PatientModule {}

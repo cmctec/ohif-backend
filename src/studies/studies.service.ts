@@ -1,10 +1,20 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/utilModules/prisma/prisma.service';
 import { GetAllStudiesDto } from './dto/getAllStudies.dto';
+import { PatientService } from 'src/patient/patient.service';
+import { SupabaseService } from 'src/utilModules/supabase/supabase.service';
+import { OrganizationsService } from 'src/organizations/organizations.service';
+import { ModalitiesService } from 'src/modalities/modalities.service';
 
 @Injectable()
 export class StudiesService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly supabaseService: SupabaseService,
+    private readonly patientService: PatientService,
+    private readonly organizationsService: OrganizationsService,
+    private readonly modalitiesService: ModalitiesService,
+  ) {}
   private readonly logger = new Logger();
 
   async getStudies(id: string) {
@@ -76,21 +86,60 @@ export class StudiesService {
     ]);
     return { count, data };
   }
-  async createStudies() {
-    await this.prismaService.studies.create({
+  async createSupabaseStudies() {
+    const data = {
+      studies: {
+        ohif_id: 'string',
+        description: 'string',
+        access_number: 'string',
+        date: 's',
+      },
+      patient: {
+        iin: '010525550491',
+        phone: '87471873000',
+        email: 'nurzatsj@gmail.com',
+      },
+      organizations: {
+        institution_name: 'string',
+      },
+      modalities: [
+        {
+          name: 'string',
+        },
+      ],
+    };
+    let supabaseStudies = await this.supabaseService.studies.findFirst({
+      where: { ohif_id: data.studies.ohif_id },
+    });
+    if (supabaseStudies) {
+      throw new HttpException(
+        'len(supabaseStudies ohif_id) != 0',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const supabasePatient = await this.patientService.getOrCreate(data.patient);
+    const supabaseOrganizations =
+      await this.organizationsService.getOrCreateOrganizations(
+        data.organizations,
+      );
+
+    supabaseStudies = await this.supabaseService.studies.create({
       data: {
-        ohif_id: '',
-        patient_id: '',
-        description: '',
-        date: '',
-        access_number: '',
-        status: '',
-        sms_status: ' ',
-        incorrectiin: true,
-        uuid_whatsapp: '',
-        anonymized_ohif_id: '',
-        archive_url: '',
+        ohif_id: data.studies.ohif_id,
+        patient_id: supabasePatient.id,
+        date: data.studies.date,
+        description: data.studies.description,
+        access_number: data.studies.access_number,
+        status: 'IN_PROGRESS',
+        incorrectIIN: false,
+        organization_id: supabaseOrganizations.id,
+        uploaded_to_the_cloud: false,
       },
     });
+    await this.modalitiesService.createModalitiesInStudy(
+      data.modalities,
+      Number(supabaseStudies.id),
+    );
+    return supabasePatient;
   }
 }

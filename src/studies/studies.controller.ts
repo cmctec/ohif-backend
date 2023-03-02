@@ -28,6 +28,6 @@ export class StudiesController {
   }
   @Post()
   async createStudies() {
-    return this.studiesService.createStudies();
+    return this.studiesService.createSupabaseStudies();
   }
 }

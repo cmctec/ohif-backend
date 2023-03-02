@@ -27,7 +27,7 @@ export class PatientService {
   ) {}
   private readonly logger = new Logger();
 
-  async savePatientSupabase(data: SavePatientDto) {
+  async createOrUpdatePatientSupabase(data: SavePatientDto) {
     data.phone = data.phone.replace(/[\s\(\)\+]/g, '');
 
     let supabasePatient = await this.supabaseService.patients.findFirst({
@@ -55,13 +55,27 @@ export class PatientService {
         data: updateOrCreateData,
       });
     }
+    return supabasePatient;
+  }
+  //TO DO create DTO
+  async getOrCreate(data: { iin: string; phone?: string; email?: string }) {
+    const supabasePatient = await this.supabaseService.patients.findFirst({
+      where: { iin: data.iin },
+    });
+    if (supabasePatient) return supabasePatient;
+    return this.createOrUpdatePatientSupabase({
+      iin: data.iin || '123',
+      email: data?.email || '',
+      phone: data?.phone || '',
+    });
+  }
 
+  async savePatientSupabase(data: SavePatientDto) {
     this.logger.log('savePatient');
-
+    const supabasePatient = await this.createOrUpdatePatientSupabase(data);
     if (!supabasePatient.iin) return;
 
     this.logger.log('savePatient studies update');
-
     const studies = await this.supabaseService.studies.findFirst({
       where: {
         id: supabasePatient.id,
