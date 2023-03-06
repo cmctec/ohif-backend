@@ -8,13 +8,13 @@ services:
     volumes:
       - /data/postgres:/data/postgres
     env_file:
-      - .env.prod
+      - .prod.env
   migrate:
     container_name: main_migrate
     build: .
     restart: on-failure
     env_file:
-      - .env.prod
+      - .prod.env
     depends_on:
       - postgres
     command: ["yarn", "migrate" ]
@@ -23,7 +23,7 @@ services:
     restart: always
     build: .
     env_file:
-      - .env.prod
+      - .prod.env
     ports:
       - 8888:8888
     depends_on:
