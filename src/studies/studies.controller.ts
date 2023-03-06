@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
@@ -8,6 +9,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import ValidationOpt from 'src/utilModules/config/ValidationOpt';
+import { CreateStudiesDto } from './dto/createStudies.dto';
 import { GetAllStudiesDto } from './dto/getAllStudies.dto';
 import { StudiesService } from './studies.service';
 
@@ -27,7 +29,7 @@ export class StudiesController {
     return this.studiesService.getAllStudies(queryParams);
   }
   @Post()
-  async createStudies() {
-    return this.studiesService.createSupabaseStudies();
+  async createStudies(@Body() data: CreateStudiesDto) {
+    return this.studiesService.createSupabaseStudies(data);
   }
 }

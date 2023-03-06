@@ -5,6 +5,7 @@ import { PatientService } from 'src/patient/patient.service';
 import { SupabaseService } from 'src/utilModules/supabase/supabase.service';
 import { OrganizationsService } from 'src/organizations/organizations.service';
 import { ModalitiesService } from 'src/modalities/modalities.service';
+import { CreateStudiesDto } from './dto/createStudies.dto';
 
 @Injectable()
 export class StudiesService {
@@ -86,29 +87,7 @@ export class StudiesService {
     ]);
     return { count, data };
   }
-  async createSupabaseStudies() {
-    //TO DO Create DTO
-    const data = {
-      studies: {
-        ohif_id: 'string',
-        description: 'string',
-        access_number: 'string',
-        date: 's',
-      },
-      patient: {
-        iin: '010525550491',
-        phone: '87471873000',
-        email: 'nurzatsj@gmail.com',
-      },
-      organizations: {
-        institution_name: 'string',
-      },
-      modalities: [
-        {
-          name: 'string',
-        },
-      ],
-    };
+  async createSupabaseStudies(data: CreateStudiesDto) {
     let supabaseStudies = await this.supabaseService.studies.findFirst({
       where: { ohif_id: data.studies.ohif_id },
     });
