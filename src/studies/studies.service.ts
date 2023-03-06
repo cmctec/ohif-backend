@@ -87,6 +87,7 @@ export class StudiesService {
     return { count, data };
   }
   async createSupabaseStudies() {
+    //TO DO Create DTO
     const data = {
       studies: {
         ohif_id: 'string',

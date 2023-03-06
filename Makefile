@@ -2,11 +2,6 @@
 # this code generated schema.prisma and prisma types
 # !!! DONT Used in prod
 # recommended after migration "make sm"
-prisma: 
-	npx prisma db pull
-# this code generated prisma types
-prismag: 
-	npx prisma generate
 dev:
 	yarn start start:dev
 # для миграций, js file отправить все sql file виде  DDL запроса

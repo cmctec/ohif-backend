@@ -29,7 +29,9 @@ model appointment {
   serviceCount     BigInt?
   conclusion_id    BigInt?
   organization_id  BigInt?
+  modality_id      BigInt?
   conclusion       conclusion?    @relation(fields: [conclusion_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  modalities       modalities?    @relation(fields: [modality_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   organizations    organizations? @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   studies          studies?       @relation(fields: [study_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -53,8 +55,10 @@ model modalities {
   id             BigInt           @id @default(autoincrement())
   created_at     DateTime?        @default(now()) @db.Timestamptz(6)
   name           String?          @db.VarChar
+  appointment    appointment[]
   modality_role  modality_role[]
   modality_study modality_study[]
+  services       services[]
 }
 
 model modality_role {
@@ -200,13 +204,15 @@ model price {
 }
 
 model services {
-  id              BigInt    @id(map: "services2_pkey") @default(autoincrement())
-  created_at      DateTime? @default(now()) @db.Timestamptz(6)
-  service_code    String?   @unique(map: "services2_service_code_key")
-  codename        String?   @unique(map: "services2_codename_key")
+  id              BigInt      @id(map: "services2_pkey") @default(autoincrement())
+  created_at      DateTime?   @default(now()) @db.Timestamptz(6)
+  service_code    String?     @unique(map: "services2_service_code_key")
+  codename        String?     @unique(map: "services2_codename_key")
   service_name    String?
   dcm_description String?
+  modality_id     BigInt?
   price           price[]
+  modalities      modalities? @relation(fields: [modality_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model orthanc_config {
@@ -224,4 +230,14 @@ model payment_type {
   id               BigInt  @id @default(autoincrement())
   payment_type     String?
   payment_type_rus String?
+}
+
+model insurance_organizations {
+  id                   BigInt   @id @default(autoincrement())
+  name                 String?  @db.VarChar
+  bin                  String?  @db.VarChar
+  phone                Decimal? @db.Decimal
+  email                String?  @db.VarChar
+  contact_person       String?  @db.VarChar
+  contact_person_phone Decimal? @db.Decimal
 }

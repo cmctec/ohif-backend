@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { da } from 'date-fns/locale';
 import { PrismaService } from 'src/utilModules/prisma/prisma.service';
 import { SupabaseService } from 'src/utilModules/supabase/supabase.service';
 

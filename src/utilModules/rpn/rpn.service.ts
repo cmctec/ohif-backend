@@ -5,7 +5,6 @@ import { RpnDataDto } from './dto/rpn.dto';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const convert = require('xml-js');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const _ = require('lodash');
 import { LodashService } from 'src/utilModules/lodash/lodash.service';
 
 @Injectable()
