@@ -6,6 +6,7 @@ import { PatientModule } from 'src/patient/patient.module';
 import { SupabaseModule } from 'src/utilModules/supabase/supabase.module';
 import { OrganizationsModule } from 'src/organizations/organizations.module';
 import { ModalitiesModule } from 'src/modalities/modalities.module';
+import { lodashModule } from 'src/utilModules/lodash/lodash.module';
 
 @Module({
   controllers: [StudiesController],
@@ -16,6 +17,7 @@ import { ModalitiesModule } from 'src/modalities/modalities.module';
     PatientModule,
     OrganizationsModule,
     ModalitiesModule,
+    lodashModule,
   ],
 })
 export class StudiesModule {}

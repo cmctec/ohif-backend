@@ -6,6 +6,7 @@ import { SupabaseService } from 'src/utilModules/supabase/supabase.service';
 import { OrganizationsService } from 'src/organizations/organizations.service';
 import { ModalitiesService } from 'src/modalities/modalities.service';
 import { CreateStudiesDto } from './dto/createStudies.dto';
+import { LodashService } from 'src/utilModules/lodash/lodash.service';
 
 @Injectable()
 export class StudiesService {
@@ -15,6 +16,7 @@ export class StudiesService {
     private readonly patientService: PatientService,
     private readonly organizationsService: OrganizationsService,
     private readonly modalitiesService: ModalitiesService,
+    private readonly lodashService: LodashService,
   ) {}
   private readonly logger = new Logger();
 
@@ -88,6 +90,7 @@ export class StudiesService {
     return { count, data };
   }
   async createSupabaseStudies(data: CreateStudiesDto) {
+    data = this.lodashService.pickByUndefinedOrNull(data);
     let supabaseStudies = await this.supabaseService.studies.findFirst({
       where: { ohif_id: data.studies.ohif_id },
     });

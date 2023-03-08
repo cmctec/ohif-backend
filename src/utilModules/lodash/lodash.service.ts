@@ -18,4 +18,8 @@ export class LodashService {
         ),
     );
   }
+  pickByUndefinedOrNull(data: Record<string, any>) {
+    // убираю undefined
+    return _.pickBy(data, (v) => !(v === undefined || v === null));
+  }
 }

@@ -9,8 +9,8 @@ class StudiesDto {
 }
 class PatientDto {
   iin: string;
-  phone: string;
-  email: string;
+  phone?: string;
+  email?: string;
 }
 export class CreateStudiesDto {
   studies: StudiesDto;
