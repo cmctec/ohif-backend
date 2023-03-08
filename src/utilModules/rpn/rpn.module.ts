@@ -1,10 +1,10 @@
-import { HttpModule } from '@nestjs/axios';
-import { Module } from '@nestjs/common';
-import { RpnService } from './rpn.service';
+import { Global, Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { lodashModule } from '../lodash/lodash.module';
-
+import { RpnService } from './rpn.service';
+@Global()
 @Module({
-  imports: [HttpModule, lodashModule],
+  imports: [lodashModule, ConfigModule],
   providers: [RpnService],
   exports: [RpnService],
 })

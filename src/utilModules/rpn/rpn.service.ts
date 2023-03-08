@@ -9,9 +9,10 @@ import { LodashService } from 'src/utilModules/lodash/lodash.service';
 
 @Injectable()
 export class RpnService {
-  @Inject(LodashService)
-  private readonly itemService: LodashService;
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly itemService: LodashService,
+    private readonly httpService: HttpService,
+  ) {}
   private readonly logger = new Logger();
   async getRpnIin(iin: string): Promise<RpnDataDto> {
     try {

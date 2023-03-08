@@ -17,6 +17,7 @@ import { ModalitiesModule } from './modalities/modalities.module';
 import { ConclusionModule } from './conclusion/conclusion.module';
 import { UserModule } from './user/user.module';
 import { OrganizationsModule } from './organizations/organizations.module';
+import { GlobalHttpModule } from './utilModules/globalHttp/globalHttp.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { OrganizationsModule } from './organizations/organizations.module';
     ConclusionModule,
     UserModule,
     OrganizationsModule,
+    GlobalHttpModule,
   ],
   controllers: [],
   providers: [

@@ -19,11 +19,11 @@ export class PatientService {
     private readonly s3Service: S3Service,
     private readonly prismaService: PrismaService,
     private readonly supabaseService: SupabaseService,
-    private readonly rpnService: RpnService,
     private readonly messengerApiService: MessengerApiService,
     private readonly userService: UserService,
     private readonly pdfJsReportApiService: PdfJsReportApiService,
     private readonly lodashService: LodashService,
+    private readonly rpnService: RpnService,
   ) {}
   private readonly logger = new Logger();
 
