@@ -139,8 +139,13 @@ export class PatientService {
       where: { id: share_dicom_archive.id },
       data: {
         ...(share_dicom_archive.otp_code
-          ? { status: 're_sent_otpcode' }
-          : { otp_code: otpcode }),
+          ? {
+              status: 're_sent_otpcode',
+              otp_code: otpcode,
+            }
+          : {
+              otp_code: otpcode,
+            }),
         doctor_iin: data.doctor_iin,
         number_of_attempts: (share_dicom_archive.number_of_attempts || 0) + 1,
       },
