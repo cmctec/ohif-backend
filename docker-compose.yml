@@ -22,6 +22,11 @@ services:
     container_name: main
     restart: always
     build: .
+    # volumes:
+    #   - .:/ohif/app/main
+    #   - /ohif/app/main/node_modules
+    #   - /ohif/app/main/generated
+    # command: ["yarn", "start:dev" ]
     env_file:
       - .prod.env
     ports:

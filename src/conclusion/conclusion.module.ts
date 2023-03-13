@@ -6,6 +6,7 @@ import { MessengerApiModule } from 'src/utilModules/messengerApi/messengerApi.mo
 import { PdfJsReportApiModule } from 'src/utilModules/pdfJsReportApi/pdfJsReportApi.module';
 import { PrismaModule } from 'src/utilModules/prisma/prisma.module';
 import { S3Module } from 'src/utilModules/s3/s3.module';
+import { SupabaseModule } from 'src/utilModules/supabase/supabase.module';
 import { ConclusionController } from './conclusion.controller';
 import { ConclusionService } from './conclusion.service';
 
@@ -14,6 +15,7 @@ import { ConclusionService } from './conclusion.service';
   providers: [ConclusionService],
   imports: [
     MessengerApiModule,
+    SupabaseModule,
     PrismaModule,
     UserModule,
     S3Module,

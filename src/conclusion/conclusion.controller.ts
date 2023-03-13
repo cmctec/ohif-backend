@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
+  Param,
   Post,
+  Res,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
@@ -26,5 +29,14 @@ export class ConclusionController {
       files,
       user.preferred_username,
     );
+  }
+
+  @Get('/pdf/:id')
+  @UseInterceptors(AnyFilesInterceptor())
+  async getPDFSupabase(@Res() res, @Param() id: string) {
+    const s3_PDF_URL = await this.conclusionService.supabaseGetPDFURL(
+      Number(id),
+    );
+    return res.redirect(s3_PDF_URL);
   }
 }

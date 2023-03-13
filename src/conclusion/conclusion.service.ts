@@ -11,6 +11,7 @@ import { createHash } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { MaglitService } from 'src/utilModules/maglit/maglit.service';
 import { format } from 'date-fns';
+import { SupabaseService } from 'src/utilModules/supabase/supabase.service';
 
 @Injectable()
 export class ConclusionService {
@@ -21,6 +22,7 @@ export class ConclusionService {
     private readonly userService: UserService,
     private readonly messengerApiService: MessengerApiService,
     private readonly maglitService: MaglitService,
+    private readonly supabaseService: SupabaseService,
   ) {}
   private readonly logger = new Logger();
 
@@ -166,5 +168,15 @@ export class ConclusionService {
     } catch (err) {
       this.logger.error(err);
     }
+  }
+  async supabaseGetPDFURL(id: number) {
+    //when i do
+    //pdf in public s3
+    return this.supabaseService.conclusion.findFirst({
+      where: { id },
+      select: {
+        conclusion_url: true,
+      },
+    });
   }
 }
